@@ -440,16 +440,18 @@ def check_personal_msg(request):
 
 		print(interest_msg)
 		# print(form)
-		# print(form.nickname)
+		
 		# #print(form.birthday)
 		# print(form.city)
 		# print(form.email)
 		if has_own_avatar:
+			print(request.user.myuser.nickname)
 			return render(request, 'LinkAct/user_info.html', {'form':form, 'has_login':True, 
-			'user_name':request.user.username, 'personal_msg':request.user, 'interest_msg':interest_msg, 'img': img, 'has_own_avatar':has_own_avatar})
+			'personal_msg':request.user, 'interest_msg':interest_msg, 'img': img, 'has_own_avatar':has_own_avatar})
 		else:
+			print(request.user.myuser.nickname)
 			return render(request, 'LinkAct/user_info.html', {'form':form, 'has_login':True, 
-			'user_name':request.user.username, 'personal_msg':request.user, 'interest_msg':interest_msg, 'has_own_avatar':has_own_avatar})
+			'personal_msg':request.user, 'interest_msg':interest_msg, 'has_own_avatar':has_own_avatar})
 
 def set_password_func(request):
 
@@ -493,10 +495,14 @@ def set_password_func(request):
 
 		obj.myuser.set_password(new_password1)
 		log_out(request)
-		return render(request, 'LinkAct/result_page.html', {'error_index':6, 'has_login':False, 'img': img})
-	else:        
-		return render(request, 'LinkAct/user_password.html', {'form':form, 'has_login':True, 
-			'user_name':request.user.username, 'img': img})
+		return render(request, 'LinkAct/result_page.html', {'error_index':6, 'has_login':False})
+	else:
+		if has_own_avatar:
+			return render(request, 'LinkAct/user_password.html', {'form':form, 'has_login':True, 
+			'user_name':request.user.username, 'img':img, 'has_own_avatar': has_own_avatar})
+		else:
+			return render(request, 'LinkAct/user_password.html', {'form':form, 'has_login':True, 
+			'user_name':request.user.username, 'has_own_avatar': has_own_avatar})
 
 #评价活动——需要评价Form，先定义为CommentForm
 
