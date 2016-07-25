@@ -19,6 +19,8 @@
 		<link rel="stylesheet" type="text/css" href="{%static "css/start_page.css" %}">
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/navigation.css" %}">
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{%static "css/profile.css"%}">
 	
 	</head>
 	<body margin='0px'>
@@ -48,12 +50,12 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation"><a href="{{ url1 }}">领客</a></li>
+					  	<li role="presentation"><a href="linker/?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{ url2 }}">活动</a></li>
+					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -81,7 +83,7 @@
 					            <li role="separator" class="divider"></li>
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
-					            <li><a href="{{ url7 }}">用户信息</a></li>
+					            <li><a href="{{ url7 }}">个人信息</a></li>
 					            {% endif %}
 					            {% url 'user_password_url' as url8%}
 					            {% if url8 %}
@@ -104,6 +106,8 @@
 			    </div><!-- /.navbar-collapse -->
 	  		</div><!-- /.container-fluid -->
 		</nav>
+
+		<!-- {% if set_info%}
 		{% if form%}
 		<form method="post">
 		    {% csrf_token %}
@@ -115,6 +119,139 @@
 		    <input type="submit" value="提交" />
 		</form>
 		{% endif %}
+
+		{% else %}
+
+
+		{% endif %} -->
+		<div class="container">
+		    <div class="row profile">
+				<div class="col-md-3">
+					<div class="profile-sidebar">
+						<!-- SIDEBAR USERPIC -->
+						<div class="profile-userpic">
+					
+				    		{% if has_own_avatar%}
+				    		<img class="img-responsive" src={{ img.img.url }} />
+				    		{% else %}
+				    		<img class="img-responsive" src="{%static "img/default_avatar.jpg" %}"/>
+				    		{% endif %}
+				    	
+						</div>
+						<!-- END SIDEBAR USERPIC -->
+						<!-- SIDEBAR USER TITLE -->
+						<div class="profile-usertitle">
+							<div class="profile-usertitle-name">
+								{{personal_msg.username}}
+							</div>
+							<div class="profile-usertitle-email">
+								{% if personal_msg.myuser.nickname == ''%}
+								尚未设置昵称
+								{% else %}
+								昵称:{{personal_msg.myuser.nickname}}
+								{% endif %}
+							</div>
+						</div>
+						
+						<div class="profile-usermenu">
+							<ul class="nav">
+								<li class="active">
+									<a href="#">
+									<i class="glyphicon glyphicon-home"></i>
+									个人信息 </a>
+								</li>
+								<li>
+									<a href="#">
+									<i class="glyphicon glyphicon-user"></i>
+									用户信息设置 </a>
+								</li>
+								<li>
+									<a href="#" target="_blank">
+									<i class="glyphicon glyphicon-tasks"></i>
+									管理活动 </a>
+								</li>
+								<li>
+									<a href="{{url8}}">
+									<i class="glyphicon glyphicon-lock"></i>
+									设置密码 </a>
+								</li>
+							</ul>
+						</div>
+						<!-- END MENU -->
+					</div>
+				</div>
+				<div class="col-md-9">
+		            <div class="profile-content" style="padding:0">
+						<div class="panel panel-info">
+			            	<div class="panel-heading">
+			              		<h3 class="panel-title">个人信息查看</h3>
+			            	</div>
+			            	<div class="panel-body">
+			              		<div class="row">
+			      
+			                		<div class=" col-md-9 col-lg-9 "> 
+			                  			<table class="table table-user-information">
+			                    			<tbody>
+			                    				<tr>
+						                        	<td>昵称：</td>
+						                        	{% if personal_msg.myuser.nickname != ''%}
+						                        	<td>{{personal_msg.myuser.nickname}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                      	<tr>
+						                        	<td>性别：</td>
+						                        	{% if personal_msg.myuser.gender != ''%}
+						                        	<td>{{personal_msg.myuser.gender}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                      	<tr>
+						                        	<td>生日：</td>
+						                        	{% if personal_msg.myuser.birthday != ''%}
+						                        	<td>{{personal_msg.myuser.birthday}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                        	<td>城市：</td>
+						                        	{% if personal_msg.myuser.city != ''%}
+						                        	<td>{{personal_msg.myuser.city}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                        <tr>
+						                        	<td>爱好：</td>
+						                        	<td>{{interest_msg}}</td>
+						                      	</tr>
+						                      	<tr>
+						                        	<td>电子邮箱：</td>
+						                        	<td>{{personal_msg.email}}</td>
+						                      	</tr>
+						                      	<tr>
+						                        	<td>联系电话：</td>
+						                        	{% if personal_msg.myuser.phone_number != ''%}
+						                        	<td>{{personal_msg.myuser.phone_number}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                    </tbody>
+			                  			</table>
+			                  		</div>
+								</div>
+							</div>
+						</div>
+		            </div>
+				</div>
+			</div>
+		</div>
+		<br>
+		<br>
+
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
 				<p>由古志诚、向首兴、楼昀恺设计以及建造的网站</p>

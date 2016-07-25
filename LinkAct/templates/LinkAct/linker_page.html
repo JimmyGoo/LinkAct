@@ -25,6 +25,7 @@
 			  $('.combobox').combobox();
 			});
 		</script>
+		
 	</head>
 	<body margin='0px'>
 		<nav class="navbar navbar-default">	
@@ -52,12 +53,12 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation" class='active'><a href="{{ url1 }}">领客</a></li>
+					  	<li role="presentation" class='active'><a href="linker/?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{ url2 }}">活动</a></li>
+					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -110,8 +111,9 @@
 			<p id="title">Join The Activties</p>
 			<p id="subtitle">make the life better</p>
 		</div>
-		
-		<<form method="POST" enctype="multipart/form-data">
+
+		<form method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
 		    <div class="input-group">
 		        <select class="combobox" name="search_class">
 		            <option></option>
@@ -125,17 +127,31 @@
 		    </div><!-- /input-group -->
 		    <input type="submit" name="submit" value="search_submit">
 		</form>
+
+		{% for ask in requests %}
+		    <form method='post'>
+		    	{% csrf_token %}
+		        <p>
+		      		<input type='text' name='request_id' value='{{ ask }}'>
+		      		<input type='text' value='请求加你为好友'>
+		        	<input type='submit' name='submit' class='' value='同意'>
+		        	<input type='submit' name='submit' value='拒绝'>
+		        	<input type='hidden' name='old_url' value={{ current_url }}> 
+		        </p>
+		    </form>
+		{% endfor %}
+
 		{% for r in result %}
 		    <h2>
 		      <p>
 		        <input type='text' value={{r.nickname}} >
 		      </p>
-		       <a href="../show_person_msg/?id={{ r.user.id }}&last_page={{ current_url }}">详情</a>
+		       <a href="../personal_info/?id={{ r.user.id }}&last_page={{ current_url }}">详情</a>
 		    </h2>
 		{% endfor %}
 
 		<a href="{{ next_page_url }}">下一页</a>
-		
+
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
 				<p>由古志诚、向首兴、楼昀恺设计以及建造的网站</p>

@@ -15,7 +15,7 @@ class MyUser(models.Model):
 	#与其关联的默认User
 	user = models.OneToOneField(User, on_delete = models.CASCADE)
 	#昵称
-	nickname = models.CharField(max_length = 20)
+	nickname = models.CharField(max_length = 20, default = '')
 	#生日
 	birthday = models.DateField(default = date.today)
 	#好友
@@ -23,7 +23,7 @@ class MyUser(models.Model):
 	#主页地址
 	website = models.URLField()
 	#所在城市
-	city = models.CharField(max_length = 20)
+	city = models.CharField(max_length = 20, default = '')
 	#头像
 	head = models.IntegerField(default = -1)
 	#已完成活动：参与&发起
@@ -35,9 +35,17 @@ class MyUser(models.Model):
 	#评论过的活动
 	commented_acts = models.CharField(max_length = 300, default = '[]')
 	#性别
-	gender = models.CharField(max_length = 20)
+	gender = models.CharField(max_length = 20, default = '')
 	#兴趣
 	interests = models.CharField(max_length = 300, default = '[]')
+	#电话号码
+	phone_number = models.CharField(max_length = 20, default = '')
+
+    #待处理好友请求         #new_pos
+	waiting_deal_friends = models.CharField(max_length = 300, default = '[]')
+
+        #好友列表
+	friends = models.CharField(max_length = 300, default = '[]')
 
 	#get attribute
 	def get_username(self):
@@ -86,6 +94,10 @@ class MyUser(models.Model):
 		return self.interests
 	def get_head(self):
 		return self.head
+	def get_waiting(self):
+		if isinstance(self.waiting_deal_friends, str):
+			return json.loads(self.waiting_deal_friends)
+		return self.waiting_deal_friends
 
 
 	#set attribute
@@ -307,6 +319,26 @@ class MyUser(models.Model):
 	def set_head(self, head):
 		self.head = head
 		self.save()
+	def append_waiting(self, requester_id):
+		ite = self.get_waiting()
+		if requester_id not in ite:
+			ite.append(requester_id)
+			self.waiting_deal_friends = json.dumps(ite)
+			self.save()
+			return True
+		self.waiting_deal_friends = json.dumps(ite)
+		self.save()
+		return False
+	def del_waiting_friends(self, requester_id):
+		ite = self.get_waiting()
+		if requester_id in ite:
+			ite.remove(requester_id)
+			self.waiting_deal_friends = json.dumps(ite)
+			self.save()
+			return True
+		self.waiting_deal_friends = json.dumps(ite)
+		self.save()
+		return False
 
 	#tools
 	def check_password(self, raw_password):
@@ -370,22 +402,103 @@ class MyUser(models.Model):
 			results = [var for var in acts if var.id in coa]
 		return results
 	
-	#data是一个act数组，在该数组中查找同时符合reference中theme的act，满足的项数越多越靠前
-	def activity_theme_filter(self, data, reference):
-		if not isinstance(reference, list):
-			return []
-		results = {}
-		for item in data:
-			temp = [var for var in item.get_theme() if var in reference]
-			results[item] = temp
-		return sorted(results.items(), key = lambda asd:asd[1], reverse = True)
+	
+	def activity_filter(self, reference):
+		results = []
+		if 'theme' in reference:
+			if not isinstance(reference['theme'], list):
+				return []
+			temps = {}
+			for item in Activity.objects.all():
+				temp = [var for var in item.get_theme() if var in reference['theme']]
+				temps[item] = temp
+			temps = sorted(temps.items(), key = lambda asd:asd[1], reverse = True)
+			for item in temps:
+				if len(item[1]) != 0:
+					results.append(item[0])
+		else:
+			for x in Activity.objects.all():
+				results.append(x)
+		if 'status' in reference:
+			if not isinstance(reference['status'], str):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_status() != reference['status']:
+					del results[i]
+				else:
+					i += 1
+		if 'creator' in reference:
+			if not isinstance(reference['creator'], int):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_creator() != reference['creator']:
+					del results[i]
+				else:
+					i += 1
+		if 'participant' in reference:
+			if not isinstance(reference['participant'], int):
+				return []
+			i = 0
+			while(i < len(results)):
+				if reference['participant'] not in results[i].get_participants():
+					del results[i]
+				else:
+					i += 1
+		if 'locale' in reference:
+			if not isinstance(reference['locale'], str):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_locale() != reference['locale']:
+					del results[i]
+				else:
+					i += 1
+		if 'create_date' in reference:
+			if not isinstance(reference['create_date'], date):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_create_date() != reference['create_date']:
+					del results[i]
+				else:
+					i += 1
+		if 'start_date' in reference:
+			if not isinstance(reference['start_date'], date):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_start_date() != reference['start_date']:
+					del results[i]
+				else:
+					i += 1
+		if 'end_date' in reference:
+			if not isinstance(reference['end_date'], date):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_end_date() != reference['end_date']:
+					del results[i]
+				else:
+					i += 1
+		if 'introduction' in reference:
+			if not isinstance(reference['introduction'], str):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_introduction() != reference['introduction']:
+					del results[i]
+				else:
+					i += 1
+		return results
 
 	#data是一个MyUser数组，在该数组中进行查找，同时符合reference中的各种属性的MyUser,
 	#reference中的属性不固定，例如：{'city':'重庆'}和{'city':'重庆', 'nickname': '偷心的鱼'}皆可,
 	#属性可选范围是MyUser和User的所有属性
-	def user_filter(self, data, reference):
+	def user_filter(self, reference):
 		results = []
-		for item in data:
+		for item in MyUser.objects.all():
 			results.append(item)
 		if 'username' in reference:
 			i = 0
@@ -476,13 +589,13 @@ class MyUser(models.Model):
 		
 class Activity(models.Model):
 	#状态
-	status = models.CharField(max_length = 20)
+	status = models.CharField(max_length = 20, default = '')
 	#发起人ID
 	creator = models.IntegerField()
 	#参与人ID
 	participants = models.CharField(max_length = 300, default = '[]')
 	#地点
-	locale = models.CharField(max_length = 20)
+	locale = models.CharField(max_length = 20, default = '')
 	#主题
 	theme = models.CharField(max_length = 300, default = '[]')
 	#发起时间
@@ -492,7 +605,7 @@ class Activity(models.Model):
 	#结束时间
 	end_date = models.DateField(default = date.today)
 	#发起介绍
-	introduction = models.TextField()
+	introduction = models.CharField(max_length = 500, default = '[]')
 	#点赞人
 	supporters = models.CharField(max_length = 300, default = '[]')
 
@@ -633,7 +746,7 @@ class Activity(models.Model):
 		return self.get_theme_content()
 
 class Interest(models.Model):
-	content = models.CharField(max_length = 20)
+	content = models.CharField(max_length = 20, default = '')
 	#get attribute
 	def get_content(self):
 		return self.content
@@ -645,7 +758,7 @@ class Interest(models.Model):
 		return self.content
 
 class Theme(models.Model):
-	content = models.CharField(max_length = 100)
+	content = models.CharField(max_length = 100, default = '')
 	#get attribute
 	def get_content(self):
 		return self.content
@@ -659,7 +772,7 @@ class Theme(models.Model):
 class Comment(models.Model):
 	commenter = models.IntegerField()
 	score = models.IntegerField()
-	content = models.CharField(max_length = 20)
+	content = models.CharField(max_length = 300, default = '')
 	#get attribute
 	def get_content(self):
 		return self.content

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8'>
+		<title>Welcome to LinkAct</title>
+		<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+		<!-- 新 Bootstrap 核心 CSS 文件 -->
+		<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+		<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+		<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+		<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+		<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+
+		<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+		<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{%static "css/start_page.css" %}">
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{%static "css/navigation.css" %}">
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{%static "css/profile.css"%}">
+	
+	</head>
+	<body margin='0px'>
+		<nav class="navbar navbar-default">	
+			<div id="logo" style='background-color=#f8f8f8:'>
+      			<a id='logopart1'>Link</a>
+      			<a id='logopart2'>Act</a>
+      			<a id='copy'>"Link The Activities To You"</a>
+    		</div>
+
+    		{% if has_login %}
+    		{% if has_own_avatar%}
+    		<img id='user_img_id' src={{ img.img.url }} />
+    		{% else %}
+    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
+    		{% endif %}
+    		{% endif %}
+
+			<div class="container-fluid" id="navigation_container">
+    			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	      			<ul class="nav nav-pills navbar-left">
+
+	      				{%url 'start_page_url' as url0 %}
+					  	{% if url0 %}
+					  	<li role="presentation"><a href="{{ url0 }}">首页</a></li>
+					  	{% endif%}
+
+					  	{%url 'linker_page_url' as url1 %}
+					  	{% if url1 %}
+					  	<li role="presentation"><a href="{{ my_url }}../linker/?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
+					  	{% endif %}
+
+					  	{%url 'activities_page_url' as url2 %}
+					  	{% if url2 %}
+					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	{% endif %}
+
+					  	{%url 'explore_page_url' as url3 %}
+					  	{% if url3 %}
+					  	<li role="presentation"><a href="{{ url3 }}">探索</a></li>
+					  	{% endif %}
+
+					  	{%url 'share_page_url' as url4 %}
+					  	{% if url4 %}
+					  	<li role="presentation"><a href="{{ url4 }}">分享</a></li>
+					  	{% endif%}
+
+					</ul>
+		      		<ul class="nav navbar-nav navbar-right">
+		      			{% if has_login %}
+		      			<li><a id='user_name_id'>{{ user_name }}</a></li>
+
+		        		<li><a href='../../?user_login=0'>登出</a></li>
+		        		<li class="dropdown">
+			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
+				            <ul class="dropdown-menu">
+					            <li><a href="#">管理活动</a></li>
+					            <li><a href="#">查看好友</a></li>
+					            <li><a href="#">分享</a></li>
+					            <li role="separator" class="divider"></li>
+					            {% url 'user_info_url' as url7%}
+					            {% if url7 %}
+					            <li><a href="{{ url7 }}">个人信息</a></li>
+					            {% endif %}
+					            {% url 'user_password_url' as url8%}
+					            {% if url8 %}
+					            <li><a href="{{ url8 }}">修改密码</a></li>
+					            {% endif %}
+				            </ul>
+			        	</li>
+			        	
+			        	{% else %}
+			        	{% url 'log_in_url' as url5%}
+			        	{% if url5%}
+			        	<li><a href="{{ url5 }}">登录</a></li>
+			        	{% endif %}
+		        		{% url 'register_url' as url6%}
+		        		{% if url6 %}
+		        		<li><a href="{{ url6 }}">注册</a></li>
+		        		{% endif %}
+			        	{% endif %}
+			        </ul>
+			    </div><!-- /.navbar-collapse -->
+	  		</div><!-- /.container-fluid -->
+		</nav>
+
+		<!-- {% if set_info%}
+		{% if form%}
+		<form method="post">
+		    {% csrf_token %}
+		    账号：<input type="label" name="username" value={{personal_msg.username}} readonly="readonly">
+		    昵称：<input type="text" name="nickname" value={{personal_msg.myuser.nickname}}>
+		    email：<input type="text" name="email" value={{personal_msg.email}}>
+		    城市：<input type="text" name="city" value={{personal_msg.myuser.city}}>
+		    爱好：<input type="text" name="interest" value={{interest_msg}} readonly="readonly">
+		    <input type="submit" value="提交" />
+		</form>
+		{% endif %}
+
+		{% else %}
+
+
+		{% endif %} -->
+		<div class="container">
+		    <div class="row profile">
+				<div class="col-md-3">
+					<div class="profile-sidebar">
+						<!-- SIDEBAR USERPIC -->
+						<div class="profile-userpic">
+					
+				    		{% if other_flag%}
+				    		<img class="img-responsive" src={{ other_img.img.url }} />
+				    		{% else %}
+				    		<img class="img-responsive" src="{%static "img/default_avatar.jpg" %}"/>
+				    		{% endif %}
+				    	
+						</div>
+						<!-- END SIDEBAR USERPIC -->
+						<!-- SIDEBAR USER TITLE -->
+						<div class="profile-usertitle">
+							<div class="profile-usertitle-name">
+								{{personal_msg.username}}
+							</div>
+							<div class="profile-usertitle-email">
+								{% if personal_msg.myuser.nickname == ''%}
+								尚未设置昵称
+								{% else %}
+								昵称:{{personal_msg.myuser.nickname}}
+								{% endif %}
+							</div>
+						</div>
+						
+						<div class="profile-usermenu">
+							<ul class="nav">
+								<li class="active">
+									<a href="#">
+									<i class="glyphicon glyphicon-home"></i>
+									个人信息 </a>
+								</li>
+								<li>
+									<a href="#">
+									<i class="glyphicon glyphicon-user"></i>
+									用户信息设置 </a>
+								</li>
+								<li>
+									<a href="#" target="_blank">
+									<i class="glyphicon glyphicon-tasks"></i>
+									管理活动 </a>
+								</li>
+								<li>
+									<a href="{{url8}}">
+									<i class="glyphicon glyphicon-lock"></i>
+									设置密码 </a>
+								</li>
+							</ul>
+						</div>
+						<!-- END MENU -->
+					</div>
+				</div>
+				<div class="col-md-9">
+		            <div class="profile-content" style="padding:0">
+						<div class="panel panel-info">
+			            	<div class="panel-heading">
+			              		<h3 class="panel-title">个人信息查看</h3>
+			            	</div>
+			            	<div class="panel-body">
+			              		<div class="row">
+			      
+			                		<div class=" col-md-9 col-lg-9 "> 
+			                  			<table class="table table-user-information">
+			                    			<tbody>
+			                    				<tr>
+						                        	<td>昵称：</td>
+						                        	{% if personal_msg.myuser.nickname != ''%}
+						                        	<td>{{personal_msg.myuser.nickname}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                      	<tr>
+						                        	<td>性别：</td>
+						                        	{% if personal_msg.myuser.gender != ''%}
+						                        	<td>{{personal_msg.myuser.gender}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                      	<tr>
+						                        	<td>生日：</td>
+						                        	{% if personal_msg.myuser.birthday != ''%}
+						                        	<td>{{personal_msg.myuser.birthday}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                        	<td>城市：</td>
+						                        	{% if personal_msg.myuser.city != ''%}
+						                        	<td>{{personal_msg.myuser.city}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                        <tr>
+						                        	<td>爱好：</td>
+						                        	<td>{{interest_msg}}</td>
+						                      	</tr>
+						                      	<tr>
+						                        	<td>电子邮箱：</td>
+						                        	<td>{{personal_msg.email}}</td>
+						                      	</tr>
+						                      	<tr>
+						                        	<td>联系电话：</td>
+						                        	{% if personal_msg.myuser.phone_number != ''%}
+						                        	<td>{{personal_msg.myuser.phone_number}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                    </tbody>
+			                  			</table>
+			                  		</div>
+								</div>
+							</div>
+						</div>
+		            </div>
+				</div>
+			</div>
+		</div>
+		<br>
+		<br>
+
+		<form method='post'>
+			{% csrf_token %}
+			<input type='submit' name='submit' value='request_friend'>
+			<input type='hidden' name='person_id' value={{ personal_msg.id }}>
+		</form>
+
+		<a href="{{ last_page }}">返回上一页</a>
+
+		<footer class="bs-docs-footer" role="contentinfo">
+			<div class='container' id='copy_right'>
+				<p>由古志诚、向首兴、楼昀恺设计以及建造的网站</p>
+				<p>感谢github上开源的bootstrap框架以及django框架</p>
+				<p>若有建议以及意见，请不拘束地联系我们</p>
+				<p>Gu's email:734291093@qq.com</p>
+				<p>Xiang's email:xsx1996@163.com</p>
+				<p>Lou's email:louyk14@163.com</p>
+			</div>
+		</footer>
+	</body>
+</html>
