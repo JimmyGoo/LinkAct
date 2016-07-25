@@ -15,7 +15,7 @@ class MyUser(models.Model):
 	#与其关联的默认User
 	user = models.OneToOneField(User, on_delete = models.CASCADE)
 	#昵称
-	nickname = models.CharField(max_length = 20)
+	nickname = models.CharField(max_length = 20, default = '')
 	#生日
 	birthday = models.DateField(default = date.today)
 	#好友
@@ -23,7 +23,7 @@ class MyUser(models.Model):
 	#主页地址
 	website = models.URLField()
 	#所在城市
-	city = models.CharField(max_length = 20)
+	city = models.CharField(max_length = 20, default = '')
 	#头像
 	head = models.IntegerField(default = -1)
 	#已完成活动：参与&发起
@@ -35,9 +35,11 @@ class MyUser(models.Model):
 	#评论过的活动
 	commented_acts = models.CharField(max_length = 300, default = '[]')
 	#性别
-	gender = models.CharField(max_length = 20)
+	gender = models.CharField(max_length = 20, default = '')
 	#兴趣
 	interests = models.CharField(max_length = 300, default = '[]')
+	#电话号码
+	phone_number = models.CharField(max_length = 20, default = '')
 
 	#get attribute
 	def get_username(self):
@@ -299,13 +301,16 @@ class MyUser(models.Model):
 		self.user.save()
 		self.save()
 	def set_gender(self, gender):
-		if gender == '男' or gender == '女':
-			self.gender = gender
-			self.save()
-			return True
-		return False
+		
+		self.gender = gender
+		self.save()
+			
 	def set_head(self, head):
 		self.head = head
+		self.save()
+
+	def set_phonenumber(self, phone_number):
+		self.phone_number = phone_number
 		self.save()
 
 	#tools
@@ -370,15 +375,56 @@ class MyUser(models.Model):
 			results = [var for var in acts if var.id in coa]
 		return results
 	
-	#data是一个act数组，在该数组中查找同时符合reference中theme的act，满足的项数越多越靠前
-	def activity_theme_filter(self, data, reference):
-		if not isinstance(reference, list):
-			return []
-		results = {}
-		for item in data:
-			temp = [var for var in item.get_theme() if var in reference]
-			results[item] = temp
-		return sorted(results.items(), key = lambda asd:asd[1], reverse = True)
+	
+	def activity_filter(self, style, reference):
+		data = Activity.objects.all()
+		if style == 'theme':
+			if not isinstance(reference, list):
+				return []
+			temps = {}
+			for item in data:
+				temp = [var for var in item.get_theme() if var in reference]
+				temps[item] = temp
+			temps = sorted(temps.items(), key = lambda asd:asd[1], reverse = True)
+			results = []
+			for item in temps:
+				if len(item[1]) != 0:
+					results.append(item[0])
+		elif style == 'status':
+			if not isinstance(reference, str):
+				return []
+			results = []
+			for item in data:
+				if item.get_status() == reference:
+					results.append(item)
+		elif style == 'creator':
+			if not isinstance(reference, int):
+				return []
+			results = []
+			for item in data:
+				if item.get_creator() == reference:
+					results.append(item)
+		elif style == 'participants':
+			if not isinstance(reference, list):
+				return []
+			temps = {}
+			for item in data:
+				temp = [var for var in item.get_participants() if var in reference]
+				temps[item] = temp
+			temps = sorted(temps.items(), key = lambda asd:asd[1], reverse = True)
+			results = []
+			for item in temps:
+				if len(item[1]) != 0:
+					results.append(item[0])
+		elif style == 'locale':
+			if not isinstance(reference, str):
+				return []
+			results = []
+			for item in data:
+				if item.get_locale() == reference:
+					results.append(item)
+
+		return results
 
 	#data是一个MyUser数组，在该数组中进行查找，同时符合reference中的各种属性的MyUser,
 	#reference中的属性不固定，例如：{'city':'重庆'}和{'city':'重庆', 'nickname': '偷心的鱼'}皆可,
@@ -476,13 +522,13 @@ class MyUser(models.Model):
 		
 class Activity(models.Model):
 	#状态
-	status = models.CharField(max_length = 20)
+	status = models.CharField(max_length = 20, default = '')
 	#发起人ID
 	creator = models.IntegerField()
 	#参与人ID
 	participants = models.CharField(max_length = 300, default = '[]')
 	#地点
-	locale = models.CharField(max_length = 20)
+	locale = models.CharField(max_length = 20, default = '')
 	#主题
 	theme = models.CharField(max_length = 300, default = '[]')
 	#发起时间
@@ -633,7 +679,7 @@ class Activity(models.Model):
 		return self.get_theme_content()
 
 class Interest(models.Model):
-	content = models.CharField(max_length = 20)
+	content = models.CharField(max_length = 20, default = '')
 	#get attribute
 	def get_content(self):
 		return self.content
@@ -645,7 +691,7 @@ class Interest(models.Model):
 		return self.content
 
 class Theme(models.Model):
-	content = models.CharField(max_length = 100)
+	content = models.CharField(max_length = 100, default = '')
 	#get attribute
 	def get_content(self):
 		return self.content
@@ -659,7 +705,7 @@ class Theme(models.Model):
 class Comment(models.Model):
 	commenter = models.IntegerField()
 	score = models.IntegerField()
-	content = models.CharField(max_length = 20)
+	content = models.CharField(max_length = 300, default = '')
 	#get attribute
 	def get_content(self):
 		return self.content

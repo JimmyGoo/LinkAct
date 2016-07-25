@@ -21,7 +21,9 @@
 		<link rel="stylesheet" type="text/css" href="{%static "css/navigation.css" %}">
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/profile.css"%}">
-	
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{%static "css/bootstrap-datetimepicker.min.css"%}">
+
 	</head>
 	<body margin='0px'>
 		<nav class="navbar navbar-default">	
@@ -50,12 +52,12 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation"><a href="{{ url1 }}">领客</a></li>
+					  	<li role="presentation"><a href="linker/?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{ url2 }}">活动</a></li>
+					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -107,23 +109,7 @@
 	  		</div><!-- /.container-fluid -->
 		</nav>
 
-		<!-- {% if set_info%}
-		{% if form%}
-		<form method="post">
-		    {% csrf_token %}
-		    账号：<input type="label" name="username" value={{personal_msg.username}} readonly="readonly">
-		    昵称：<input type="text" name="nickname" value={{personal_msg.myuser.nickname}}>
-		    email：<input type="text" name="email" value={{personal_msg.email}}>
-		    城市：<input type="text" name="city" value={{personal_msg.myuser.city}}>
-		    爱好：<input type="text" name="interest" value={{interest_msg}} readonly="readonly">
-		    <input type="submit" value="提交" />
-		</form>
-		{% endif %}
-
-		{% else %}
-
-
-		{% endif %} -->
+	
 		<div class="container">
 		    <div class="row profile">
 				<div class="col-md-3">
@@ -155,16 +141,29 @@
 						
 						<div class="profile-usermenu">
 							<ul class="nav">
+								{% if info_change_status == False %}
 								<li class="active">
-									<a href="#">
+									<a href="{{url7}}">
 									<i class="glyphicon glyphicon-home"></i>
 									个人信息 </a>
 								</li>
 								<li>
-									<a href="#">
+									<a href="{{url7}}?info_change=1">
 									<i class="glyphicon glyphicon-user"></i>
 									用户信息设置 </a>
 								</li>
+								{% else %}
+								<li>
+									<a href="{{url7}}">
+									<i class="glyphicon glyphicon-home"></i>
+									个人信息 </a>
+								</li>
+								<li class="active">
+									<a href="{{url7}}?info_change=1">
+									<i class="glyphicon glyphicon-user"></i>
+									用户信息设置 </a>
+								</li>
+								{% endif %}
 								<li>
 									<a href="#" target="_blank">
 									<i class="glyphicon glyphicon-tasks"></i>
@@ -181,7 +180,8 @@
 					</div>
 				</div>
 				<div class="col-md-9">
-		            <div class="profile-content" style="padding:0">
+		            <div class="profile-content">
+		            	{% if info_change_status == False %}
 						<div class="panel panel-info">
 			            	<div class="panel-heading">
 			              		<h3 class="panel-title">个人信息查看</h3>
@@ -192,19 +192,31 @@
 			                		<div class=" col-md-9 col-lg-9 "> 
 			                  			<table class="table table-user-information">
 			                    			<tbody>
-						                      	<tr>
-						                        	<td>Department:</td>
-						                        	<td>Programming</td>
+			                    				<tr>
+						                        	<td>昵称：</td>
+						                        	{% if personal_msg.myuser.nickname != ''%}
+						                        	<td>{{personal_msg.myuser.nickname}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
 						                      	</tr>
 						                      	<tr>
-						                        	<td>Hire date:</td>
-						                        	<td>06/23/2013</td>
+						                        	<td>性别：</td>
+						                        	{% if personal_msg.myuser.gender != ''%}
+						                        	<td>{{personal_msg.myuser.gender}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
 						                      	</tr>
 						                      	<tr>
-						                        	<td>Date of Birth</td>
-						                        	<td>01/24/1988</td>
-						                        <tr>
-						                        	<td>城市</td>
+						                        	<td>生日：</td>
+						                        	{% if personal_msg.myuser.birthday != ''%}
+						                        	<td>{{personal_msg.myuser.birthday|date:"Y-m-d"}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                        	<td>城市：</td>
 						                        	{% if personal_msg.myuser.city != ''%}
 						                        	<td>{{personal_msg.myuser.city}}</td>
 						                        	{% else %}
@@ -212,16 +224,20 @@
 						                        	{% endif %}
 						                      	</tr>
 						                        <tr>
-						                        	<td>爱好</td>
+						                        	<td>爱好：</td>
 						                        	<td>{{interest_msg}}</td>
 						                      	</tr>
 						                      	<tr>
-						                        	<td>电子邮箱</td>
+						                        	<td>电子邮箱：</td>
 						                        	<td>{{personal_msg.email}}</td>
 						                      	</tr>
-						                        	<td>Phone Number</td>
-						                        	<td>123-4567-890(Landline)<br><br>555-4567-890(Mobile)
-						                        	</td>
+						                      	<tr>
+						                        	<td>联系电话：</td>
+						                        	{% if personal_msg.myuser.phone_number != ''%}
+						                        	<td>{{personal_msg.myuser.phone_number}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
 						                      	</tr>
 						                    </tbody>
 			                  			</table>
@@ -229,6 +245,119 @@
 								</div>
 							</div>
 						</div>
+
+						{% else %}
+						<form class="form-horizontal" method='post'>
+							<fieldset>
+							{% csrf_token %}
+							<!-- Form Name -->
+							<legend>修改个人信息</legend>
+
+							<!-- Text input-->
+							<div class="form-group">
+							  	<label class="col-md-4 control-label" for="nickname">昵称:</label>  
+							  	<div class="col-md-4">
+							  		<input id="nickname" name="nickname" type="text" placeholder="请填写" class="form-control input-md" value="{{personal_msg.myuser.nickname}}">
+							  	</div>
+							</div>
+
+							<div class="form-group">
+							  	<label class="col-md-4 control-label" for="gender">性别:</label>
+							  	<div class="col-md-4"> 
+							    	<label class="radio-inline" for="gender-0">
+							    		{%if personal_msg.myuser.gender == "男"%}
+							      		<input type="radio" name="gender" id="gender-0" value="男" checked="check">
+							      		男
+							      		{% else %}
+							      		<input type="radio" name="gender" id="gender-0" value="男">
+							      		男
+							      		{% endif %}
+							    	</label> 
+
+							    	<label class="radio-inline" for="gender-1">
+							    		{%if personal_msg.myuser.gender == "女"%}
+							      		<input type="radio" name="gender" id="gender-1" value="女" checked="check">
+							      		女
+							      		{% else %}
+							      		<input type="radio" name="gender" id="gender-1" value="女">
+							      		女
+							      		{% endif %}
+							    	</label> 
+							    	<label class="radio-inline" for="gender-2">
+							    		{%if personal_msg.myuser.gender == ""%}
+							      		<input type="radio" name="gender" id="gender-2" value="" checked="check">
+							      		未填写
+							      		{% else %}
+							      		<input type="radio" name="gender" id="gender-2" value="">
+							      		未填写
+							      		{% endif %}
+							    	</label>
+							  	</div>
+							</div>
+
+							<div class="form-group">
+                				<label for="birthday" class="col-md-4 control-label">生日:</label>
+                				<div class="input-group date form_date col-md-4" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                    				<input class="form-control" style="margin-left: 12px; background-color:transparent;" id="birthday" name="birthday"size="16" type="text" 
+                    				value="{{personal_msg.myuser.birthday|date:"Y-m-d"}}" readonly>
+                    				<span class="input-group-addon" style="margin-left: 12px;"><span class="glyphicon glyphicon-remove"></span></span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                				</div>
+								<input type="hidden" value="" /><br/>
+            				</div>
+
+							<!-- Text input-->
+							<div class="form-group">
+							  <label class="col-md-4 control-label" for="city">城市:</label>  
+							  <div class="col-md-4">
+							  <input id="city" name="city" type="text" placeholder="尚未设置城市" class="form-control input-md" value="{{personal_msg.myuser.city}}">
+							    
+							  </div>
+							</div>
+
+							<!-- Select Multiple -->
+							<div class="form-group">
+							  	<label class="col-md-4 control-label" for="interests">爱好:</label>
+							  	<div class="col-md-4">
+								  	<div class="checkbox">
+								    	<label for="interests-0">
+								      		<input type="checkbox" name="interests" id="interests-0" value="1">
+								      		Option one
+								    	</label>
+									</div>
+								  	<div class="checkbox">
+								   		<label for="interests-1">
+								      		<input type="checkbox" name="interests" id="interests-1" value="2">
+								      		Option two
+								    	</label>
+									</div>
+							  	</div>
+							</div>
+
+							<!-- Text input-->
+							<div class="form-group">
+							  	<label class="col-md-4 control-label" for="phone">联系电话:</label>  
+							  	<div class="col-md-4">
+							  		<input id="phone_number" name="phone_number" type="text" placeholder="请输入联系电话" class="form-control input-md" value="{{personal_msg.myuser.phone_number}}">
+							  		<span class="help-block">请输入正确的11位电话</span>  
+							  	</div>
+							</div>
+
+							<!-- Multiple Radios (inline) -->
+							
+
+							<!-- Button -->
+							<div class="form-group">
+							  	<label class="col-md-4 control-label" for="singlebutton"></label>
+							  	<div class="col-md-4">
+							    	<button type="submit" value='change' name="change_info" class="btn btn-success">确认修改</button>
+							  	</div>
+							</div>
+
+							</fieldset>
+						</form>
+
+						{% endif %}
 		            </div>
 				</div>
 			</div>
@@ -247,4 +376,22 @@
 			</div>
 		</footer>
 	</body>
+
+	{% load staticfiles %}
+	<script src="{%static "js/bootstrap-datetimepicker.min.js" %}"></script>
+	{% load staticfiles %}
+	<script src="{%static "js/bootstrap-datetimepicker.zh-CN.js" %}"></script>
+	<script type="text/javascript">
+		$('.form_date').datetimepicker({
+	        language:  'zh-CN',
+	        weekStart: 1,
+	        todayBtn:  1,
+			autoclose: 1,
+			todayHighlight: 1,
+			startView: 2,
+			minView: 2,
+			forceParse: 0
+	    });
+		$('#birthday').width($('#birthday').width() - 12);
+	</script>
 </html>
