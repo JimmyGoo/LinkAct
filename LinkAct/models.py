@@ -40,6 +40,15 @@ class MyUser(models.Model):
 	interests = models.CharField(max_length = 300, default = '[]')
 	#电话号码
 	phone_number = models.CharField(max_length = 20, default = '')
+<<<<<<< HEAD
+=======
+
+    #待处理好友请求         #new_pos
+	waiting_deal_friends = models.CharField(max_length = 300, default = '[]')
+
+        #好友列表
+	friends = models.CharField(max_length = 300, default = '[]')
+>>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 
 	#get attribute
 	def get_username(self):
@@ -88,6 +97,10 @@ class MyUser(models.Model):
 		return self.interests
 	def get_head(self):
 		return self.head
+	def get_waiting(self):
+		if isinstance(self.waiting_deal_friends, str):
+			return json.loads(self.waiting_deal_friends)
+		return self.waiting_deal_friends
 
 
 	#set attribute
@@ -308,6 +321,26 @@ class MyUser(models.Model):
 	def set_head(self, head):
 		self.head = head
 		self.save()
+	def append_waiting(self, requester_id):
+		ite = self.get_waiting()
+		if requester_id not in ite:
+			ite.append(requester_id)
+			self.waiting_deal_friends = json.dumps(ite)
+			self.save()
+			return True
+		self.waiting_deal_friends = json.dumps(ite)
+		self.save()
+		return False
+	def del_waiting_friends(self, requester_id):
+		ite = self.get_waiting()
+		if requester_id in ite:
+			ite.remove(requester_id)
+			self.waiting_deal_friends = json.dumps(ite)
+			self.save()
+			return True
+		self.waiting_deal_friends = json.dumps(ite)
+		self.save()
+		return False
 
 	def set_phonenumber(self, phone_number):
 		self.phone_number = phone_number
@@ -375,63 +408,102 @@ class MyUser(models.Model):
 			results = [var for var in acts if var.id in coa]
 		return results
 	
-	
-	def activity_filter(self, style, reference):
-		data = Activity.objects.all()
-		if style == 'theme':
-			if not isinstance(reference, list):
+	def activity_filter(self, reference):
+		results = []
+		if 'theme' in reference:
+			if not isinstance(reference['theme'], list):
 				return []
 			temps = {}
-			for item in data:
-				temp = [var for var in item.get_theme() if var in reference]
+			for item in Activity.objects.all():
+				temp = [var for var in item.get_theme() if var in reference['theme']]
 				temps[item] = temp
 			temps = sorted(temps.items(), key = lambda asd:asd[1], reverse = True)
-			results = []
 			for item in temps:
 				if len(item[1]) != 0:
 					results.append(item[0])
-		elif style == 'status':
-			if not isinstance(reference, str):
+		else:
+			for x in Activity.objects.all():
+				results.append(x)
+		if 'status' in reference:
+			if not isinstance(reference['status'], str):
 				return []
-			results = []
-			for item in data:
-				if item.get_status() == reference:
-					results.append(item)
-		elif style == 'creator':
-			if not isinstance(reference, int):
+			i = 0
+			while(i < len(results)):
+				if results[i].get_status() != reference['status']:
+					del results[i]
+				else:
+					i += 1
+		if 'creator' in reference:
+			if not isinstance(reference['creator'], int):
 				return []
-			results = []
-			for item in data:
-				if item.get_creator() == reference:
-					results.append(item)
-		elif style == 'participants':
-			if not isinstance(reference, list):
+			i = 0
+			while(i < len(results)):
+				if results[i].get_creator() != reference['creator']:
+					del results[i]
+				else:
+					i += 1
+		if 'participant' in reference:
+			if not isinstance(reference['participant'], int):
 				return []
-			temps = {}
-			for item in data:
-				temp = [var for var in item.get_participants() if var in reference]
-				temps[item] = temp
-			temps = sorted(temps.items(), key = lambda asd:asd[1], reverse = True)
-			results = []
-			for item in temps:
-				if len(item[1]) != 0:
-					results.append(item[0])
-		elif style == 'locale':
-			if not isinstance(reference, str):
+			i = 0
+			while(i < len(results)):
+				if reference['participant'] not in results[i].get_participants():
+					del results[i]
+				else:
+					i += 1
+		if 'locale' in reference:
+			if not isinstance(reference['locale'], str):
 				return []
-			results = []
-			for item in data:
-				if item.get_locale() == reference:
-					results.append(item)
-
+			i = 0
+			while(i < len(results)):
+				if results[i].get_locale() != reference['locale']:
+					del results[i]
+				else:
+					i += 1
+		if 'create_date' in reference:
+			if not isinstance(reference['create_date'], date):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_create_date() != reference['create_date']:
+					del results[i]
+				else:
+					i += 1
+		if 'start_date' in reference:
+			if not isinstance(reference['start_date'], date):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_start_date() != reference['start_date']:
+					del results[i]
+				else:
+					i += 1
+		if 'end_date' in reference:
+			if not isinstance(reference['end_date'], date):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_end_date() != reference['end_date']:
+					del results[i]
+				else:
+					i += 1
+		if 'introduction' in reference:
+			if not isinstance(reference['introduction'], str):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_introduction() != reference['introduction']:
+					del results[i]
+				else:
+					i += 1
 		return results
 
 	#data是一个MyUser数组，在该数组中进行查找，同时符合reference中的各种属性的MyUser,
 	#reference中的属性不固定，例如：{'city':'重庆'}和{'city':'重庆', 'nickname': '偷心的鱼'}皆可,
 	#属性可选范围是MyUser和User的所有属性
-	def user_filter(self, data, reference):
+	def user_filter(self, reference):
 		results = []
-		for item in data:
+		for item in MyUser.objects.all():
 			results.append(item)
 		if 'username' in reference:
 			i = 0
@@ -538,7 +610,7 @@ class Activity(models.Model):
 	#结束时间
 	end_date = models.DateField(default = date.today)
 	#发起介绍
-	introduction = models.TextField()
+	introduction = models.CharField(max_length = 500, default = '[]')
 	#点赞人
 	supporters = models.CharField(max_length = 300, default = '[]')
 

@@ -42,6 +42,10 @@ body {
 }
 
 .profile-usertitle-email {
+<<<<<<< HEAD
+=======
+  text-transform: uppercase;
+>>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
   color: #5b9bd1;
   font-size: 12px;
   font-weight: 600;

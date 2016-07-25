@@ -127,6 +127,23 @@
 		    </div><!-- /input-group -->
 		    <input type="submit" name="submit" value="search_submit">
 		</form>
+<<<<<<< HEAD
+=======
+
+		{% for ask in requests %}
+		    <form method='post'>
+		    	{% csrf_token %}
+		        <p>
+		      		<input type='text' name='request_id' value='{{ ask }}'>
+		      		<input type='text' value='请求加你为好友'>
+		        	<input type='submit' name='submit' class='' value='同意'>
+		        	<input type='submit' name='submit' value='拒绝'>
+		        	<input type='hidden' name='old_url' value={{ current_url }}> 
+		        </p>
+		    </form>
+		{% endfor %}
+
+>>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 		{% for r in result %}
 		    <h2>
 		      <p>
