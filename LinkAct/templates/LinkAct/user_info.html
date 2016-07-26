@@ -139,10 +139,16 @@
 								{% endif %}
 							</div>
 							{% else %}
-							<form method="POST">
+							<form method="POST" enctype="multipart/form-data">
 								{% csrf_token %}
-								<input type="file" name="img_upload" id="img_upload">
-								<button type="submit" name="img_upload_btn" value='upload'>上传</button>
+								<div class="form-group" style='width:100%;'>
+									<input type="file" name="img_upload" id="img_upload" style='width:100%;'>
+								  	<label class="col-md-4 control-label" for="img_upload_btn"></label>
+								  	<div class="col-md-4">
+								    	<button type="submit" id="img_upload_btn" name="img_upload_btn" value="upload" class="btn btn-info" >上传头像</button>
+								  	</div>
+								</div>
+								</label>
 							</form>
 							{% endif %}
 						</div>
@@ -394,6 +400,7 @@
 	<script src="{%static "js/bootstrap-datetimepicker.min.js" %}"></script>
 	{% load staticfiles %}
 	<script src="{%static "js/bootstrap-datetimepicker.zh-CN.js" %}"></script>
+	<script src="{%static "js/bootstrap-filestyle.min.js" %}"> </script>
 	<script type="text/javascript">
 		$('.form_date').datetimepicker({
 	        language:  'zh-CN',
@@ -406,5 +413,6 @@
 			forceParse: 0
 	    });
 		$('#birthday').width($('#birthday').width() - 12);
+		$(":file").filestyle();
 	</script>
 </html>
