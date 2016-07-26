@@ -40,15 +40,11 @@ class MyUser(models.Model):
 	interests = models.CharField(max_length = 300, default = '[]')
 	#电话号码
 	phone_number = models.CharField(max_length = 20, default = '')
-<<<<<<< HEAD
-=======
-
     #待处理好友请求         #new_pos
 	waiting_deal_friends = models.CharField(max_length = 300, default = '[]')
+     #好友列表
 
-        #好友列表
 	friends = models.CharField(max_length = 300, default = '[]')
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 
 	#get attribute
 	def get_username(self):

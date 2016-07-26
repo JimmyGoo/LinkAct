@@ -5,6 +5,12 @@ from .models import Interest
 from datetime import date
 from LinkAct import models
 
+
+'''
+下面的全局函数在makemigrations时就会被编译，如果数据库里的model中添加了一个属性，
+之前的数据库就不再适用了，删掉数据库重新migration时这个函数中的interest就找不到，会报错。
+解决方法：先注释掉这个函数中的报错部分，migration后再取消注释。
+'''
 def get_interests_style():
     a = []
 
@@ -12,6 +18,7 @@ def get_interests_style():
         t = (x.id, x.get_content())
         a.append(t)
         print(tuple(a))
+    
     return tuple(a)
 
 
@@ -25,7 +32,7 @@ class RegisterForm(forms.Form):
     birthday = forms.DateField(label='生日',initial=date.today)
     city = forms.CharField(label='城市',max_length = 20)
 
-    interest = forms.MultipleChoiceField(label = u'爱好', choices = get_interests_style(), widget = forms.CheckboxSelectMultiple())
+    interests = forms.MultipleChoiceField(label = u'爱好', choices = get_interests_style(), widget = forms.CheckboxSelectMultiple())
 
 class PersonalInfoForm(forms.Form):
     nickname = forms.CharField(label='昵称',max_length = 20)

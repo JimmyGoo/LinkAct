@@ -21,13 +21,10 @@
 		<link rel="stylesheet" type="text/css" href="{%static "css/navigation.css" %}">
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/profile.css"%}">
-<<<<<<< HEAD
+
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/bootstrap-datetimepicker.min.css"%}">
 
-=======
-	
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 	</head>
 	<body margin='0px'>
 		<nav class="navbar navbar-default">	
@@ -113,27 +110,6 @@
 	  		</div><!-- /.container-fluid -->
 		</nav>
 
-<<<<<<< HEAD
-	
-=======
-		<!-- {% if set_info%}
-		{% if form%}
-		<form method="post">
-		    {% csrf_token %}
-		    账号：<input type="label" name="username" value={{personal_msg.username}} readonly="readonly">
-		    昵称：<input type="text" name="nickname" value={{personal_msg.myuser.nickname}}>
-		    email：<input type="text" name="email" value={{personal_msg.email}}>
-		    城市：<input type="text" name="city" value={{personal_msg.myuser.city}}>
-		    爱好：<input type="text" name="interest" value={{interest_msg}} readonly="readonly">
-		    <input type="submit" value="提交" />
-		</form>
-		{% endif %}
-
-		{% else %}
-
-
-		{% endif %} -->
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 		<div class="container">
 		    <div class="row profile">
 				<div class="col-md-3">
@@ -165,19 +141,14 @@
 						
 						<div class="profile-usermenu">
 							<ul class="nav">
-<<<<<<< HEAD
+
 								{% if info_change_status == False %}
 								<li class="active">
 									<a href="{{url7}}">
-=======
-								<li class="active">
-									<a href="#">
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 									<i class="glyphicon glyphicon-home"></i>
 									个人信息 </a>
 								</li>
 								<li>
-<<<<<<< HEAD
 									<a href="{{url7}}?info_change=1">
 									<i class="glyphicon glyphicon-user"></i>
 									用户信息设置 </a>
@@ -194,12 +165,6 @@
 									用户信息设置 </a>
 								</li>
 								{% endif %}
-=======
-									<a href="#">
-									<i class="glyphicon glyphicon-user"></i>
-									用户信息设置 </a>
-								</li>
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 								<li>
 									<a href="#" target="_blank">
 									<i class="glyphicon glyphicon-tasks"></i>
@@ -216,12 +181,10 @@
 					</div>
 				</div>
 				<div class="col-md-9">
-<<<<<<< HEAD
+
 		            <div class="profile-content">
 		            	{% if info_change_status == False %}
-=======
-		            <div class="profile-content" style="padding:0">
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
+
 						<div class="panel panel-info">
 			            	<div class="panel-heading">
 			              		<h3 class="panel-title">个人信息查看</h3>
@@ -251,11 +214,8 @@
 						                      	<tr>
 						                        	<td>生日：</td>
 						                        	{% if personal_msg.myuser.birthday != ''%}
-<<<<<<< HEAD
 						                        	<td>{{personal_msg.myuser.birthday|date:"Y-m-d"}}</td>
-=======
-						                        	<td>{{personal_msg.myuser.birthday}}</td>
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
+
 						                        	{% else %}
 						                        	<td>未填写</td>
 						                        	{% endif %}
@@ -289,7 +249,6 @@
 								</div>
 							</div>
 						</div>
-<<<<<<< HEAD
 
 						{% else %}
 						<form class="form-horizontal" method='post'>
@@ -403,8 +362,7 @@
 						</form>
 
 						{% endif %}
-=======
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
+
 		            </div>
 				</div>
 			</div>

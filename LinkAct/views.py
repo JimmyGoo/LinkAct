@@ -261,7 +261,7 @@ def user_register(request):
 		email = params.get('email', '')
 		#一系列合法性判定
 		
-		if usernames == None or password1 == None or password2 == None or email == None or nickname == None or birthday == None or city == None:
+		if usernames == None or password1 == None or password2 == None or email == None:
 			#信息不完整
 			print('incomplete info')
 			return render(request, 'LinkAct/result_page.html', {'error_index':3})
@@ -437,9 +437,6 @@ def check_personal_msg(request):
 		if interest_msg == "":
 			interest_msg = "未填写"	
 
-
-<<<<<<< HEAD
-
 		if has_own_avatar:
 			print(request.user.myuser.nickname)
 			return render(request, 'LinkAct/user_info.html', {'has_login':True, 
@@ -450,22 +447,6 @@ def check_personal_msg(request):
 			return render(request, 'LinkAct/user_info.html', {'has_login':True, 
 			'personal_msg':request.user, 'interest_msg':interest_msg, 'has_own_avatar':has_own_avatar,
 			'info_change_status':info_change_status})
-=======
-		print(interest_msg)
-		# print(form)
-		
-		# #print(form.birthday)
-		# print(form.city)
-		# print(form.email)
-		if has_own_avatar:
-			print(request.user.myuser.nickname)
-			return render(request, 'LinkAct/user_info.html', {'form':form, 'has_login':True, 
-			'personal_msg':request.user, 'interest_msg':interest_msg, 'img': img, 'has_own_avatar':has_own_avatar})
-		else:
-			print(request.user.myuser.nickname)
-			return render(request, 'LinkAct/user_info.html', {'form':form, 'has_login':True, 
-			'personal_msg':request.user, 'interest_msg':interest_msg, 'has_own_avatar':has_own_avatar})
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 
 def set_password_func(request):
 
@@ -561,136 +542,6 @@ def show_people(request):
 		personal_msg = User.objects.filter(id=index)[0]
 
 		temp = request.user.myuser.get_interests()
-<<<<<<< HEAD
-		interest_msg = ""
-		for s in temp:
-			if len(interest_msg) != 0:
-				interest_msg += '，'
-			interest_msg += Interest.objects.get(id = int(s)).get_content()
-		if interest_msg == "":
-			interest_msg = "未填写"	
-		if has_login:
-			imgs = Img.objects.filter(id = request.user.myuser.get_head())
-			print(imgs)
-			form = PersonalInfoForm()
-			print('fuck', personal_msg.myuser.phone_number)
-
-			if len(imgs) != 0:
-				img = imgs[0]
-				if personal_msg.myuser.get_head() != -1:
-					other_flag = True
-					other_img = Img.objects.get(id = personal_msg.myuser.get_head())
-					return render(request, 'LinkAct/personal_info.html', 
-						{
-							'other_img': other_img, 
-							'other_flag': other_flag, 
-							'has_login': has_login, 
-							'img': img, 
-							'has_own_avatar':True, 
-							'form':form, 
-							'interest_msg': interest_msg, 
-							'personal_msg':personal_msg, 
-							'last_page':current_page
-						})
-				else:
-					other_flag = False
-					return render(request, 'LinkAct/personal_info.html', 
-						{
-							'other_flag': other_flag, 
-							'has_login': has_login, 
-							'img': img, 
-							'has_own_avatar':True, 
-							'form':form, 
-							'interest_msg': interest_msg, 
-							'personal_msg':personal_msg, 
-							'last_page':current_page
-						})
-			else:
-				if personal_msg.myuser.get_head() != -1:
-					other_flag = True
-					other_img = Img.objects.get(id = personal_msg.myuser.get_head())
-					return render(request, 'LinkAct/personal_info.html', 
-						{
-							'other_img': other_img, 
-							'other_flag': other_flag, 
-							'has_login': has_login, 
-							'has_own_avatar':False, 
-							'form':form, 
-							'interest_msg': interest_msg, 
-							'personal_msg':personal_msg, 
-							'last_page':current_page
-						})
-				else:
-					other_flag = False
-					return render(request, 'LinkAct/personal_info.html', 
-						{
-							'other_flag': other_flag, 
-							'has_login': has_login, 
-							'has_own_avatar':False, 
-							'form':form, 
-							'interest_msg': interest_msg, 
-							'personal_msg':personal_msg, 
-							'last_page':current_page
-						})
-		else:
-			return render(request, 'LinkAct/personal_info.html', {'has_login': has_login, 'form':form, 'interest_msg': interest_msg, 'personal_msg':personal_msg, 'last_page':current_page})
-
-def search_people(request):
-	#-----------登录判定----------#
-	has_login = True
-	user = request.user
-	if request.method == 'GET':
-		login_status = request.GET.get('user_login','-1')
-		if login_status=='0':
-			log_out(request)
-			print('logout successfully')
-	if request.user.username == AnonymousUser.username:
-		has_login = False
-	else:
-		has_login = True
-	#-----------------------------#
-	if has_login:
-		if request.method == 'GET':                                  
-			search_class = request.GET['search_class']
-			search_content = request.GET['search_content']                                  
-			search_page = request.GET['search_page']
-			search_order = request.GET['search_order']
-
-			answer = []
-
-			if search_order == '1':
-				answer = MyUser.objects.all().order_by('id')
-
-			elif search_class == 'nickname':
-				answer = MyUser.objects.filter(nickname=search_content)
-
-
-			startPos = (int(search_page) - 1) * 10
-			endPos = int(search_page) * 10
-			if endPos >= len(answer):
-				endPos = len(answer)
-
-			result = answer[startPos:endPos]
-
-			temp_url = request.get_full_path()
-
-			next_page = int(search_page) + 1
-
-			next_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(next_page)
-
-			return render(request, 'LinkAct/linker_page.html', {'has_login': has_login, 'result':result, 'current_page':int(search_page), 'current_url':temp_url, 'next_page_url':next_page_url})    
-
-		elif request.method == 'POST':
-			params = request.POST
-			if request.POST.get('submit') == 'search_submit':
-				aim_url = request.path
-				aim_url = aim_url + "?search_class=" + params.get('search_class', '') + "&search_content=" + params.get('search_content', '') + "&search_order=0&search_page=1" 
-				return HttpResponseRedirect(aim_url)
-	else:
-		return HttpResponseRedirect('../login/')
-
-
-=======
 
 		my_url = request.path
 
@@ -871,7 +722,7 @@ def search_people(request):
 		return HttpResponseRedirect('../login/')
 
 
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
+
                                 
 #查找活动   //搜索页面不同于主页面 默认每页10条，所有展示活动的界面都绑定此函数
                 #urls.py r'^searchActs/'    绝对路径为127.0.0.0.1/searchActs/      因而展示界面上的各详情链接为  <a href='../showActs/?id='+ {{ result[index].id }} + '&last_page=' + {{ current_url }}>
@@ -900,7 +751,7 @@ def search_act(request):
 		search_page = request.GET['search_page']
 		#排序方法，为1时表示按照类别倒序排序，不搜索只排序
 		search_order = request.GET['search_order']
-<<<<<<< HEAD
+
 
 		answer = []
 
@@ -921,28 +772,6 @@ def search_act(request):
 
 		result = answer[startPos:endPos]
 
-=======
-
-		answer = []
-
-		if search_order == '1':
-			answer = Activity.objects.all().order_by(search_class)
-
-		#不同检索方式
-		elif search_class == 'theme':
-			answer = Activity.objects.all()[0].activity_theme_filter(Activity.objects.all(), [search_class])
-
-		elif search_class == '':
-			return
-
-		startPos = (int(search_page) - 1) * 10
-		endPos = int(search_page) * 10
-		if endPos >= len(answer):
-			endPos = len(answer)
-
-		result = answer[startPos:endPos]
-
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
 		next_page = int(search_page) + 1
 
 		temp_url = request.get_full_path()
