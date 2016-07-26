@@ -13,7 +13,6 @@ from LinkAct import models
 '''
 def get_interests_style():
     a = []
-
     for x in Interest.objects.all():
         t = (x.id, x.get_content())
         a.append(t)

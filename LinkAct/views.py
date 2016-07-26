@@ -408,6 +408,7 @@ def check_personal_msg(request):
 			obj.myuser.set_city(params.get('city', ''))
 			obj.myuser.set_gender(params.get('gender', ''))
 			obj.myuser.set_phonenumber(params.get('phone_number', ''))
+
 			
 
 			imgs = Img.objects.filter(id = obj.myuser.get_head())
@@ -416,6 +417,14 @@ def check_personal_msg(request):
 				return render(request, 'LinkAct/result_page.html', {'error_index':9})
 			else:
 				return render(request, 'LinkAct/result_page.html', {'error_index':9})
+
+		print(request.POST.get('img_upload_btn'))
+		if request.POST.get('img_upload_btn') == 'upload':
+			print('fuck')
+			new_img = Img(img = request.FILES.get('img_upload'))
+			new_img.save()
+			request.user.myuser.set_head(new_img.get_id())
+			return HttpResponseRedirect('.')
 
 	#查看个人信息
 	else :       
@@ -431,7 +440,7 @@ def check_personal_msg(request):
 		interest_msg = ""
 		for s in temp:
 			if len(interest_msg) != 0:
-				interest_msg += '，'
+				interest_msg += '、'
 			interest_msg += Interest.objects.get(id = int(s)).get_content()
 		
 		if interest_msg == "":
@@ -824,10 +833,3 @@ def send_emails(email_from, email_to, title, content):
 	send_mail('wf', 'wf', "Louyk14@163.com", "Louyk14@163.com", fail_silently=False)
 
 
-# Create your views here.
-def upload_img(request):
-	if request.method == 'POST':
-		new_img = Img(img = request.FILES.get('img'))
-		new_img.save()
-		request.user.myuser.set_head(new_img.get_id())
-	return render(request, 'LinkAct/uploadimg.html')

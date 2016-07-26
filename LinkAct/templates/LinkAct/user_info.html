@@ -130,6 +130,7 @@
 							<div class="profile-usertitle-name">
 								{{personal_msg.username}}
 							</div>
+							{% if info_change_status == False %}
 							<div class="profile-usertitle-nickname">
 								{% if personal_msg.myuser.nickname == ''%}
 								尚未设置昵称
@@ -137,6 +138,13 @@
 								昵称:{{personal_msg.myuser.nickname}}
 								{% endif %}
 							</div>
+							{% else %}
+							<form method="POST">
+								{% csrf_token %}
+								<input type="file" name="img_upload" id="img_upload">
+								<button type="submit" name="img_upload_btn" value='upload'>上传</button>
+							</form>
+							{% endif %}
 						</div>
 						
 						<div class="profile-usermenu">
