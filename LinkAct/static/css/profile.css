@@ -41,11 +41,7 @@ body {
   margin-bottom: 7px;
 }
 
-.profile-usertitle-email {
-<<<<<<< HEAD
-=======
-  text-transform: uppercase;
->>>>>>> 3ef877ec05086dfe2cfcc4dc548c4f8d99fdaaf1
+.profile-usertitle-nickname {
   color: #5b9bd1;
   font-size: 12px;
   font-weight: 600;
