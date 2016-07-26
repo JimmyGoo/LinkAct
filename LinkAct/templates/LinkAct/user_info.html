@@ -25,8 +25,6 @@
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/bootstrap-datetimepicker.min.css"%}">
 
-
-
 	</head>
 	<body margin='0px'>
 		<nav class="navbar navbar-default">	
@@ -38,9 +36,9 @@
 
     		{% if has_login %}
     		{% if has_own_avatar%}
-    		<img id='user_img_id' src={{ img.img.url }} class="img-circle img-responsive"/>
+    		<img id='user_img_id' src={{ img.img.url }} />
     		{% else %}
-    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}" class="img-circle img-responsive"/>
+    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
     		{% endif %}
     		{% endif %}
 
@@ -76,7 +74,7 @@
 					</ul>
 		      		<ul class="nav navbar-nav navbar-right">
 		      			{% if has_login %}
-		      			<li><a id='user_name_id'>{{ personal_msg.username }}</a></li>
+		      			<li><a id='user_name_id'>{{ user_name }}</a></li>
 
 		        		<li><a href='../../?user_login=0'>登出</a></li>
 		        		<li class="dropdown">
@@ -146,8 +144,8 @@
 								<div class="form-group" style='width:100%;'>
 									<input type="file" name="img_upload" id="img_upload" style='width:100%;'>
 								  	<label class="col-md-4 control-label" for="img_upload_btn"></label>
-								  	<div class="col-md-4" style="padding:0px;">
-								    	<button type="submit" id="img_upload_btn" name="img_upload_btn" value="upload" class="btn btn-info">上传头像</button>
+								  	<div class="col-md-4">
+								    	<button type="submit" id="img_upload_btn" name="img_upload_btn" value="upload" class="btn btn-info" >上传头像</button>
 								  	</div>
 								</div>
 								</label>
@@ -277,7 +275,7 @@
 							<div class="form-group">
 							  	<label class="col-md-4 control-label" for="nickname">昵称:</label>  
 							  	<div class="col-md-4">
-							  		<input id="nickname" name="nickname" type="text" placeholder="请填写" class="form-control input-md" value="{{personal_msg.myuser.nickname}}">
+							  		<input id="nickname" name="nickname" type="text" placeholder="未填写" class="form-control input-md" value="{{personal_msg.myuser.nickname}}">
 							  	</div>
 							</div>
 
@@ -327,45 +325,32 @@
             				</div>
 
 							<!-- Text input-->
-						
 							<div class="form-group">
-				                <label class="col-md-4 control-label" for="province">省份:</label>
-				                <div class="col-md-4">
-				                	
-				                    <select id="province" name="province" class="form-control">
-				                        <option value="载入中">载入中</option>
-				                    </select>
-				                   
-				                
-				                </div>
-				            </div>
-				            <div class="form-group control-group">
-				                <label class="control-label col-md-4" for="city">城市:</label>
-				                <div class="col-md-4" class="form-control">
-				                	
-				                    <select id="city" name="city"  class="form-control">
-				                        <option value="载入中">载入中</option>
-				                    </select>
-				                    
-				                </div>
-				            </div>
+							  <label class="col-md-4 control-label" for="city">城市:</label>  
+							  <div class="col-md-4">
+							  <input id="city" name="city" type="text" placeholder="尚未设置城市" class="form-control input-md" value="{{personal_msg.myuser.city}}">
+							    
+							  </div>
+							</div>
 
 							<!-- Select Multiple -->
-							<div class="form-group control-group">
+							<div class="form-group">
 							  	<label class="col-md-4 control-label" for="interests">爱好:</label>
 							  	<div class="col-md-4">
-								  	<div class="checkbox">
-								    	<label for="interests-0">
-								      		<input type="checkbox" name="interests" id="interests-0" value="1">
-								      		Option one
-								    	</label>
+
+									{% for data in check_interest_msg %}
+									{% if data.2 == 1%}
+									<div class="checkbox">
+										<input type="checkbox" name="interests" id="interests-0" value="{{data.0}}" checked = "check">
+										{{data.1}}
 									</div>
-								  	<div class="checkbox">
-								   		<label for="interests-1">
-								      		<input type="checkbox" name="interests" id="interests-1" value="2">
-								      		Option two
-								    	</label>
+									{% else %}
+									<div class="checkbox">
+										<input type="checkbox" name="interests" id="interests-0" value="{{data.0}}">
+										{{data.1}}
 									</div>
+									{% endif %}
+									{% endfor %}
 							  	</div>
 							</div>
 
@@ -417,47 +402,8 @@
 	<script src="{%static "js/bootstrap-datetimepicker.min.js" %}"></script>
 	{% load staticfiles %}
 	<script src="{%static "js/bootstrap-datetimepicker.zh-CN.js" %}"></script>
-	{% load staticfiles %}
 	<script src="{%static "js/bootstrap-filestyle.min.js" %}"> </script>
-	{% load staticfiles %}
-	<script src="{%static "js/data.js"%}"></script>
-	{% load staticfiles %}
-    <script src="{%static "js/jquery.city.select.min.js" %}"></script>
-
-
 	<script type="text/javascript">
-
-		default_city = '{{default_city}}';
-	    default_province = '{{default_province}}';
-	    city_code = [];
-	    for(var i = 0; i < data.length; i++)
-	    {	
-	    	if(default_province == data[i]['name'])
-	    	{
-	    		city_code.push(data[i]['id'])
-	    		for(var j = 0; j < data[i]['cities'].length; j++)
-	    		{
-	    			if(default_city == data[i]['cities'][j]['name'])
-	    			{
-	    				city_code.push(data[i]['cities'][j]['id']);
-	    				console.log(city_code);
-	    			}
-	    			break;
-	    		}
-	    		break;
-	    	}
-	    }
-
-
-    	$('#province, #city').citylist({
-	        data    : data,
-	        id      : 'id',
-	        children: 'cities',
-	        name    : 'name',
-	        metaTag : 'name',
-	        selected: city_code,
-    	});
-
 		$('.form_date').datetimepicker({
 	        language:  'zh-CN',
 	        weekStart: 1,

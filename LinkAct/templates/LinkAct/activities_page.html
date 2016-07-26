@@ -37,9 +37,9 @@
 
     		{% if has_login %}
     		{% if has_own_avatar%}
-    		<img id='user_img_id' src={{ img.img.url }} class="img-circle img-responsive"/>
+    		<img id='user_img_id' src={{ img.img.url }} />
     		{% else %}
-    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}" class="img-circle img-responsive"/>
+    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
     		{% endif %}
     		{% endif %}
 
@@ -127,15 +127,22 @@
 		    </div><!-- /input-group -->
 		    <input type="submit" name="submit" value="search_submit">
 		</form>
+
+		{% for data in new_data %}	
+			<p>{{ data.0 }}</p>
+		    <a href="{{ data.2 }}">{{ data.1 }}</a> 
+		{% endfor %}
+		
 		{% for r in result %}
 		    <h2>
 		      <p>
-		        <input type='text' value={{r.theme}} >
+		        <input type='text' value={{r.name}} >
 		      </p>
-		       <a href="../show_person_msg/?id={{ r.user.id }}&last_page={{ current_url }}">详情</a>
+		       <a href="../act_info/?id={{ r.id }}&last_page={{ current_url }}">详情</a>
 		    </h2>
 		{% endfor %}
 
+		<a href="{{ no_param_path }}create_activity/">创建活动</a>
 		<a href="{{ next_page_url }}">下一页</a>
 
 		<footer class="bs-docs-footer" role="contentinfo">

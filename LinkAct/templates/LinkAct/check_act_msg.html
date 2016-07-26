@@ -21,7 +21,7 @@
 		<link rel="stylesheet" type="text/css" href="{%static "css/navigation.css" %}">
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/profile.css"%}">
-		<script src="{%static "js/set_password.js"%}"></script>
+	
 	</head>
 	<body margin='0px'>
 		<nav class="navbar navbar-default">	
@@ -50,12 +50,12 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation"><a href="{{ url1 }}?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
+					  	<li role="presentation"><a href="linker/?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -83,7 +83,7 @@
 					            <li role="separator" class="divider"></li>
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
-					            <li><a href="{{ url7 }}">用户信息</a></li>
+					            <li><a href="{{ url7 }}">个人信息</a></li>
 					            {% endif %}
 					            {% url 'user_password_url' as url8%}
 					            {% if url8 %}
@@ -106,7 +106,24 @@
 			    </div><!-- /.navbar-collapse -->
 	  		</div><!-- /.container-fluid -->
 		</nav>
-	
+
+		<!-- {% if set_info%}
+		{% if form%}
+		<form method="post">
+		    {% csrf_token %}
+		    账号：<input type="label" name="username" value={{personal_msg.username}} readonly="readonly">
+		    昵称：<input type="text" name="nickname" value={{personal_msg.myuser.nickname}}>
+		    email：<input type="text" name="email" value={{personal_msg.email}}>
+		    城市：<input type="text" name="city" value={{personal_msg.myuser.city}}>
+		    爱好：<input type="text" name="interest" value={{interest_msg}} readonly="readonly">
+		    <input type="submit" value="提交" />
+		</form>
+		{% endif %}
+
+		{% else %}
+
+
+		{% endif %} -->
 		<div class="container">
 		    <div class="row profile">
 				<div class="col-md-3">
@@ -125,27 +142,26 @@
 						<!-- SIDEBAR USER TITLE -->
 						<div class="profile-usertitle">
 							<div class="profile-usertitle-name">
-								{{user_name}}
+								{{personal_msg.username}}
 							</div>
 							<div class="profile-usertitle-email">
-								{% if nickname == ''%}
+								{% if personal_msg.myuser.nickname == ''%}
 								尚未设置昵称
 								{% else %}
-								昵称:{{nickname}}
+								昵称:{{personal_msg.myuser.nickname}}
 								{% endif %}
 							</div>
 						</div>
 						
 						<div class="profile-usermenu">
 							<ul class="nav">
-								<li>
-									<a href="{{url7}}">
+								<li class="active">
+									<a href="#">
 									<i class="glyphicon glyphicon-home"></i>
 									个人信息 </a>
 								</li>
 								<li>
-									<a href="{{url7}}?info_change=1">
-
+									<a href="#">
 									<i class="glyphicon glyphicon-user"></i>
 									用户信息设置 </a>
 								</li>
@@ -154,8 +170,8 @@
 									<i class="glyphicon glyphicon-tasks"></i>
 									管理活动 </a>
 								</li>
-								<li class="active">
-					            	<a href="{{url8}}">
+								<li>
+									<a href="{{url8}}">
 									<i class="glyphicon glyphicon-lock"></i>
 									设置密码 </a>
 								</li>
@@ -165,50 +181,54 @@
 					</div>
 				</div>
 				<div class="col-md-9">
-		            <div class="profile-content">
-						<form class="form-horizontal" method='post'>
-						{% csrf_token %}
-
-						<fieldset>
-
-						<!-- Form Name -->
-						<legend>修改密码</legend>
-
-						<!-- Password input-->
-						<div class="form-group">
-						  	<label class="col-md-4 control-label" for="origin_password">原始密码</label>
-						  	<div class="col-md-4">
-						    	<input id="origin_password" name="origin_password" type="password" placeholder="请输入原始密码" class="form-control input-md" required="">
-						    
-						  	</div>
+		            <div class="profile-content" style="padding:0">
+						<div class="panel panel-info">
+			            	<div class="panel-heading">
+			              		<h3 class="panel-title">个人信息查看</h3>
+			            	</div>
+			            	<div class="panel-body">
+			              		<div class="row">
+			      
+			                		<div class=" col-md-9 col-lg-9 "> 
+			                  			<table class="table table-user-information">
+			                    			<tbody>
+						                      	<tr>
+						                        	<td>Department:</td>
+						                        	<td>Programming</td>
+						                      	</tr>
+						                      	<tr>
+						                        	<td>Hire date:</td>
+						                        	<td>06/23/2013</td>
+						                      	</tr>
+						                      	<tr>
+						                        	<td>Date of Birth</td>
+						                        	<td>01/24/1988</td>
+						                        <tr>
+						                        	<td>城市</td>
+						                        	{% if personal_msg.myuser.city != ''%}
+						                        	<td>{{personal_msg.myuser.city}}</td>
+						                        	{% else %}
+						                        	<td>未填写</td>
+						                        	{% endif %}
+						                      	</tr>
+						                        <tr>
+						                        	<td>爱好</td>
+						                        	<td>{{interest_msg}}</td>
+						                      	</tr>
+						                      	<tr>
+						                        	<td>电子邮箱</td>
+						                        	<td>{{personal_msg.email}}</td>
+						                      	</tr>
+						                        	<td>Phone Number</td>
+						                        	<td>123-4567-890(Landline)<br><br>555-4567-890(Mobile)
+						                        	</td>
+						                      	</tr>
+						                    </tbody>
+			                  			</table>
+			                  		</div>
+								</div>
+							</div>
 						</div>
-
-						<!-- Password input-->
-						<div class="form-group">
-						  	<label class="col-md-4 control-label" for="new_password1">新密码</label>
-						  	<div class="col-md-4">
-						    	<input id="new_password1" name="new_password1" type="password" placeholder="请输入新密码" class="form-control input-md" required="">
-						    
-						  	</div>
-						</div>
-
-						<!-- Password input-->
-						<div class="form-group">
-						  	<label class="col-md-4 control-label" for="new_password2">再次输入新密码</label>
-						  	<div class="col-md-4">
-						    	<input id="new_password2" name="new_password2" type="password" placeholder="请再次输入新密码" class="form-control input-md" required="">
-						    
-						  	</div>
-						</div>
-						<div class="form-group">
-						  	<label class="col-md-4 control-label" for="singlebutton"></label>
-						  	<div class="col-md-4">
-						    	<button id="singlebutton" name="singlebutton" class="btn btn-success">确认修改</button>
-						  	</div>
-						</div>
-
-						</fieldset>
-						</form>
 		            </div>
 				</div>
 			</div>
@@ -216,7 +236,15 @@
 		<br>
 		<br>
 
-		
+		<p>{{ act.as_p }}</p>
+
+		<form method='post'>
+			{% csrf_token %}
+			<input type='submit' name='submit' value='submit'>
+			<input type='hidden' name='back_page' value='{{ back_page }}'>
+		</form>
+
+
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
 				<p>由古志诚、向首兴、楼昀恺设计以及建造的网站</p>

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 	<head>
@@ -488,6 +487,19 @@
 		</div>
 		<br>
 		<br>
+
+		<p>{{ act_obj.as_p }}</p>
+
+		{% if isCreator == True %}
+			<a href="{{ this_page_no_para }}check_act/?id={{ act_id }}&back_page={{ this_page }}">修改活动信息</a>
+		{% endif %}
+
+		<form method='post'>
+			{% csrf_token %}
+			<input type='submit' name='submit' value='参加'>
+			<input type='submit' name='submit' value='退出'>
+			<input type='hidden' name='act_id' value='{{ act_id }}'>
+		</form>
 
 		<a href="{{ last_page }}">返回</a>
 

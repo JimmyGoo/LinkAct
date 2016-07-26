@@ -16,7 +16,6 @@ def get_interests_style():
     for x in Interest.objects.all():
         t = (x.id, x.get_content())
         a.append(t)
-        print(tuple(a))
     
     return tuple(a)
 
@@ -47,6 +46,9 @@ class SetPasswordForm(forms.Form):
 
 #创建活动信息
 class ActForm(forms.Form):
+    #名字
+    name = forms.CharField(max_length = 20)
+    #地点
     locale = forms.CharField(max_length = 20)
     #主题
     theme = forms.MultipleChoiceField(label=u'活动类型', choices=get_interests_style(), widget=forms.CheckboxSelectMultiple())

@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('participants', models.CharField(default='[]', max_length=300)),
                 ('locale', models.CharField(default='', max_length=20)),
                 ('theme', models.CharField(default='[]', max_length=300)),
-                ('create_date', models.DateField(default=datetime.date.today)),
+                ('create_time', models.DateField(default=datetime.date.today)),
                 ('start_date', models.DateField(default=datetime.date.today)),
                 ('end_date', models.DateField(default=datetime.date.today)),
                 ('introduction', models.CharField(default='[]', max_length=500)),
