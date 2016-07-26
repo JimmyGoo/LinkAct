@@ -37,9 +37,9 @@
 
     		{% if has_login %}
     		{% if has_own_avatar%}
-    		<img id='user_img_id' src={{ img.img.url }} />
+    		<img id='user_img_id' src={{ img.img.url }} class="img-circle img-responsive"/>
     		{% else %}
-    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
+    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}" class="img-circle img-responsive"/>
     		{% endif %}
     		{% endif %}
 

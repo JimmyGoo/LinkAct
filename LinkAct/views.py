@@ -409,7 +409,15 @@ def check_personal_msg(request):
 			obj.myuser.set_gender(params.get('gender', ''))
 			obj.myuser.set_phonenumber(params.get('phone_number', ''))
 
-			
+			if params.get('province','') == '未填写':
+				obj.myuser.set_city('')
+			else:
+				city_string = ''
+				city_string += params.get('province','')
+				city_string += ' '
+				city_string += params.get('city','')
+				obj.myuser.set_city(city_string)
+
 
 			imgs = Img.objects.filter(id = obj.myuser.get_head())
 			if len(imgs) != 0:
@@ -418,9 +426,7 @@ def check_personal_msg(request):
 			else:
 				return render(request, 'LinkAct/result_page.html', {'error_index':9})
 
-		print(request.POST.get('img_upload_btn'))
 		if request.POST.get('img_upload_btn') == 'upload':
-			print('fuck')
 			new_img = Img(img = request.FILES.get('img_upload'))
 			new_img.save()
 			request.user.myuser.set_head(new_img.get_id())
@@ -446,16 +452,24 @@ def check_personal_msg(request):
 		if interest_msg == "":
 			interest_msg = "未填写"	
 
+		if request.user.myuser.city != '':
+			default_province = request.user.myuser.city.split(' ')
+			default_city = default_province[1]
+			default_province = default_province[0]
+		else:
+			default_province = '未填写'
+			default_city = '未填写'
+
 		if has_own_avatar:
 			print(request.user.myuser.nickname)
 			return render(request, 'LinkAct/user_info.html', {'has_login':True, 
 			'personal_msg':request.user, 'interest_msg':interest_msg, 'img': img, 'has_own_avatar':has_own_avatar
-			,'info_change_status':info_change_status})
+			,'info_change_status':info_change_status, 'default_province':default_province, 'default_city':default_city})
 		else:
 			print(request.user.myuser.nickname)
 			return render(request, 'LinkAct/user_info.html', {'has_login':True, 
 			'personal_msg':request.user, 'interest_msg':interest_msg, 'has_own_avatar':has_own_avatar,
-			'info_change_status':info_change_status})
+			'info_change_status':info_change_status, 'default_province':default_province, 'default_city':default_city})
 
 def set_password_func(request):
 
@@ -651,6 +665,7 @@ def search_people(request):
 	else:
 		has_login = True
 	#-----------------------------#
+
 	if has_login:
 		imgs = Img.objects.filter(id = user.myuser.get_head())
 		if len(imgs) != 0:
@@ -660,6 +675,8 @@ def search_people(request):
 			has_own_avatar = False
 
 		user_name = user.myuser.get_username()
+
+		#查看领客#
 		if request.method == 'GET':                                  
 			search_class = request.GET['search_class']
 			search_content = request.GET['search_content']                                  
@@ -674,19 +691,33 @@ def search_people(request):
 			elif search_class == 'nickname':
 				answer = MyUser.objects.filter(nickname=search_content)
 
-
 			startPos = (int(search_page) - 1) * 10
 			endPos = int(search_page) * 10
+
 			if endPos >= len(answer):
 				endPos = len(answer)
 
 			result = answer[startPos:endPos]
 
 			temp_url = request.get_full_path()
-
 			next_page = int(search_page) + 1
-
 			next_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(next_page)
+
+			pass_data = []
+			#整合用户头像#
+			for show_user in result:
+
+				imgs = Img.objects.filter(id = show_user.get_head())
+				if len(imgs) != 0:
+					img = imgs[0]
+					has_own_avatar = True
+				else:
+					img = ""
+					has_own_avatar = False
+
+				pass_data.append({'other_user':show_user, 'other_img':img,'other_has_own_avatar':has_own_avatar})
+			#--------------------#
+			personal_msg = request.user
 
 			if has_own_avatar:
 				return render(request, 'LinkAct/linker_page.html', 
@@ -694,24 +725,24 @@ def search_people(request):
 							'img': img,
 							'has_own_avatar': has_own_avatar,
 							'has_login': has_login, 
-							'result':result, 
+							'pass_data':pass_data,
 							'current_page':int(search_page), 
 							'current_url':temp_url, 
 							'next_page_url':next_page_url, 
 							'requests':request.user.myuser.get_waiting(),
-							'user_name': user_name
+							'personal_msg':personal_msg,
 						})
 			else:
 				return render(request, 'LinkAct/linker_page.html', 
 						{
 							'has_own_avatar': has_own_avatar,
 							'has_login': has_login, 
-							'result':result, 
+							'pass_data':pass_data,
 							'current_page':int(search_page), 
 							'current_url':temp_url, 
 							'next_page_url':next_page_url, 
 							'requests':request.user.myuser.get_waiting(),
-							'user_name': user_name
+							'personal_msg':personal_msg,
 						})   
 
 		elif request.method == 'POST':

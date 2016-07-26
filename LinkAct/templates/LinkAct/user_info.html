@@ -25,6 +25,8 @@
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/bootstrap-datetimepicker.min.css"%}">
 
+
+
 	</head>
 	<body margin='0px'>
 		<nav class="navbar navbar-default">	
@@ -36,9 +38,9 @@
 
     		{% if has_login %}
     		{% if has_own_avatar%}
-    		<img id='user_img_id' src={{ img.img.url }} />
+    		<img id='user_img_id' src={{ img.img.url }} class="img-circle img-responsive"/>
     		{% else %}
-    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
+    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}" class="img-circle img-responsive"/>
     		{% endif %}
     		{% endif %}
 
@@ -53,12 +55,12 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation"><a href="linker/?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
+					  	<li role="presentation"><a href="{{ url1 }}?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -74,7 +76,7 @@
 					</ul>
 		      		<ul class="nav navbar-nav navbar-right">
 		      			{% if has_login %}
-		      			<li><a id='user_name_id'>{{ user_name }}</a></li>
+		      			<li><a id='user_name_id'>{{ personal_msg.username }}</a></li>
 
 		        		<li><a href='../../?user_login=0'>登出</a></li>
 		        		<li class="dropdown">
@@ -144,8 +146,8 @@
 								<div class="form-group" style='width:100%;'>
 									<input type="file" name="img_upload" id="img_upload" style='width:100%;'>
 								  	<label class="col-md-4 control-label" for="img_upload_btn"></label>
-								  	<div class="col-md-4">
-								    	<button type="submit" id="img_upload_btn" name="img_upload_btn" value="upload" class="btn btn-info" >上传头像</button>
+								  	<div class="col-md-4" style="padding:0px;">
+								    	<button type="submit" id="img_upload_btn" name="img_upload_btn" value="upload" class="btn btn-info">上传头像</button>
 								  	</div>
 								</div>
 								</label>
@@ -325,16 +327,31 @@
             				</div>
 
 							<!-- Text input-->
+						
 							<div class="form-group">
-							  <label class="col-md-4 control-label" for="city">城市:</label>  
-							  <div class="col-md-4">
-							  <input id="city" name="city" type="text" placeholder="尚未设置城市" class="form-control input-md" value="{{personal_msg.myuser.city}}">
-							    
-							  </div>
-							</div>
+				                <label class="col-md-4 control-label" for="province">省份:</label>
+				                <div class="col-md-4">
+				                	
+				                    <select id="province" name="province" class="form-control">
+				                        <option value="载入中">载入中</option>
+				                    </select>
+				                   
+				                
+				                </div>
+				            </div>
+				            <div class="form-group control-group">
+				                <label class="control-label col-md-4" for="city">城市:</label>
+				                <div class="col-md-4" class="form-control">
+				                	
+				                    <select id="city" name="city"  class="form-control">
+				                        <option value="载入中">载入中</option>
+				                    </select>
+				                    
+				                </div>
+				            </div>
 
 							<!-- Select Multiple -->
-							<div class="form-group">
+							<div class="form-group control-group">
 							  	<label class="col-md-4 control-label" for="interests">爱好:</label>
 							  	<div class="col-md-4">
 								  	<div class="checkbox">
@@ -400,8 +417,47 @@
 	<script src="{%static "js/bootstrap-datetimepicker.min.js" %}"></script>
 	{% load staticfiles %}
 	<script src="{%static "js/bootstrap-datetimepicker.zh-CN.js" %}"></script>
+	{% load staticfiles %}
 	<script src="{%static "js/bootstrap-filestyle.min.js" %}"> </script>
+	{% load staticfiles %}
+	<script src="{%static "js/data.js"%}"></script>
+	{% load staticfiles %}
+    <script src="{%static "js/jquery.city.select.min.js" %}"></script>
+
+
 	<script type="text/javascript">
+
+		default_city = '{{default_city}}';
+	    default_province = '{{default_province}}';
+	    city_code = [];
+	    for(var i = 0; i < data.length; i++)
+	    {	
+	    	if(default_province == data[i]['name'])
+	    	{
+	    		city_code.push(data[i]['id'])
+	    		for(var j = 0; j < data[i]['cities'].length; j++)
+	    		{
+	    			if(default_city == data[i]['cities'][j]['name'])
+	    			{
+	    				city_code.push(data[i]['cities'][j]['id']);
+	    				console.log(city_code);
+	    			}
+	    			break;
+	    		}
+	    		break;
+	    	}
+	    }
+
+
+    	$('#province, #city').citylist({
+	        data    : data,
+	        id      : 'id',
+	        children: 'cities',
+	        name    : 'name',
+	        metaTag : 'name',
+	        selected: city_code,
+    	});
+
 		$('.form_date').datetimepicker({
 	        language:  'zh-CN',
 	        weekStart: 1,

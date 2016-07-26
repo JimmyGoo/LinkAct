@@ -55,10 +55,13 @@
 }
 #copy_right{
 	text-align: center;
+	font-family: Helvetica;
 }
 
 #user_img_id{
-	height: 13vh;
+	height: 10vh;
+	width: 10vh;
+	border-radius: 5vh;
 	position: absolute;
 	top: 1.5vh; 
 	right: 6vw;

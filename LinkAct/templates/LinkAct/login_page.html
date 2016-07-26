@@ -39,12 +39,12 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation"><a href="linker/?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
+					  	<li role="presentation"><a href="{{ url1 }}?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -109,6 +109,7 @@
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
+				<hr/>
 				<p>由古志诚、向首兴、楼昀恺设计以及建造的网站</p>
 				<p>感谢github上开源的bootstrap框架以及django框架</p>
 				<p>若有建议以及意见，请不拘束地联系我们</p>

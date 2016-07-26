@@ -31,9 +31,9 @@
 
     		{% if has_login %}
     		{% if has_own_avatar%}
-    		<img id='user_img_id' src={{ img.img.url }} />
+    		<img id='user_img_id' src={{ img.img.url }} class="img-responsive"/>
     		{% else %}
-    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
+    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}" class="img-responsive"/>
     		{% endif %}
     		{% endif %}
 
@@ -116,7 +116,7 @@
 				<p>在这里，你可以认识到与你有着共同爱好的一群人</p>
 				<p>他们与你共享互动的喜悦</p>
 				{% if url1 %}
-				<p><a class="btn btn-primary btn-lg" href="{{ url1 }}" role="button">了解更多</a></p>
+				<p><a class="btn btn-primary btn-lg" href="{{ url1 }}?search_class=nickname&search_content=nickname&search_order=1&search_page=1" role="button">了解更多</a></p>
 				{% endif %}
 		  	</div>
 		</div>
@@ -126,7 +126,7 @@
 		   		<p>只需简单的操作，你就可以发起一次活动，邀请各路人们加入你的盛宴</p>
 				<p>喜爱的活动，畅谈的朋友，生活充满了色彩</p>
 				{% if url2 %}
-				<p><a class="btn btn-primary btn-lg" href="{{ url2 }}" role="button">了解更多</a></p>
+				<p><a class="btn btn-primary btn-lg" href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1" role="button">了解更多</a></p>
 				{% endif %}
 		  	</div>
 		</div>
