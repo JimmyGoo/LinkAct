@@ -331,6 +331,7 @@ def create_act(request):
 
 
 	if request.method == 'POST':
+
 		params = request.POST
 		temp = params.getlist('theme', '')
 		theme = [int(var) for var in temp]
@@ -346,23 +347,13 @@ def create_act(request):
 
 		introduction = ''
 		act_img_id = -1
-		introduction = params.get('introduction', '')
-		print('why')
-		print(params.get('img_upload'))
-		print(request.FILES.get('img_upload'))
-		if request.FILES.get('img_upload'):
-			print('motherfucker')
-			act_img = Img(img = request.FILES.get('img_upload'))
+		introduction = params.get('intro', '')
+
+		if request.FILES.get('act_img_upload'):
+			act_img = Img(img = request.FILES.get('act_img_upload'))
 			act_img.save()
 			act_img_id = act_img.id
-			# if request.POST.get('img_upload_btn') == 'upload':
-			
-			# new_img = Img(img = request.FILES.get('img_upload'))
-			# new_img.save()
-			# request.user.myuser.set_head(new_img.get_id())
-			# return HttpResponseRedirect('.')
-		
-		
+				
 		request.user.myuser.create_activity(name, theme, city_string, start_date, end_date, introduction, act_img_id)
 		 
 		return HttpResponseRedirect('../?search_class=create_time&search_content=None&search_order=1&search_page=1')
