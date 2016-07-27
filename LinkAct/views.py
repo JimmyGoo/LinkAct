@@ -795,12 +795,12 @@ def search_people(request):
 			c_path = request.get_full_path()
 
 			for index in range(0, len(waiting_id)):
-				aim = request.path + "../personal_info/?id=" + waiting_id[index] + "&last_page=" + c_path
+				aim = request.path + "../personal_info/?id=" + str(waiting_id[index]) + "&last_page=" + c_path
 				waiting_link.append(aim)
 
 			requests = []
 			for i in range(0, len(waiting_id)):
-				requests.append((waiting_id, waiting_link, User.objects.get(id=waiting_id[i]).myuser.nickname))
+				requests.append((waiting_id[i], waiting_link[i], User.objects.get(id=waiting_id[i]).myuser.nickname))
 
 			if has_own_avatar:
 				return render(request, 'LinkAct/linker_page.html', 
@@ -831,7 +831,7 @@ def search_people(request):
 							'next_page_url':next_page_url,
 							'front_page_url':front_page_url,
 							'first_page_url':first_page_url,
-							'requests':request.user.myuser.get_waiting(),
+							'requests':requests,
 							'user_name': user_name,
 							'search_class_pass_value':search_class_pass_value,
 							'search_class_pass_text':search_class_pass_text,
@@ -854,7 +854,7 @@ def search_people(request):
 
 			else:
 				if request.POST.get('submit') == '同意':
-					agreed_id = int(request.POST.get('request_id'))
+					agreed_id = request.POST.get('request_id')
 					request.user.myuser.append_friends(agreed_id)
 					User.objects.get(id = agreed_id).myuser.append_friends(request.user.id)
 				request.user.myuser.del_waiting_friends(agreed_id)

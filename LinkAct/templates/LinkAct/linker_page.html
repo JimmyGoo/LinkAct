@@ -49,7 +49,7 @@
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{url2}}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="{{url2}}?search_class=create_time&search_content=&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -154,7 +154,7 @@
 		</form>
  -->
 
-		<!-- {% for ask in requests %}
+		{% for ask in requests %}
 		    <form method='post'>
 		    	{% csrf_token %}
 		        <p>
@@ -166,7 +166,7 @@
 		        	<input type='hidden' name='old_url' value={{ current_url }}> 
 		        </p>
 		    </form>
-		{% endfor %} -->
+		{% endfor %}
 		{% for result_user in pass_data %}
 		{#用户列表#}
 		<div class="container">
@@ -209,7 +209,10 @@
 		                <div class="col-xs-12 col-sm-4 emphasis">
 		                    <h2><strong> 20,7K </strong></h2>                    
 		                    <p><small>Followers</small></p>
-		                    <button class="btn btn-success btn-block"><span class="fa fa-plus-circle"></span> 加为好友 </button>
+		                    <button class="btn btn-success btn-block"><span class="fa fa-plus-circle"></span> 
+		                    	<a href="../personal_info/?id={{ result_user.other_user.user.id }}&last_page={{ current_url }}">加为好友
+		                    	</a> 
+		                    </button>
 		                </div>
 		                <div class="col-xs-12 col-sm-4 emphasis">
 		                    <h2><strong>245</strong></h2>                    
@@ -231,12 +234,12 @@
 		</div>
 
 
-		    <!-- <h2>
+		    <h2>
 		      <p>
 		        <input type='text' value={{r.nickname}} >
 		      </p>
 		       <a href="../personal_info/?id={{ r.user.id }}&last_page={{ current_url }}">详情</a>
-		    </h2> -->
+		    </h2>
 		{% endfor %}
 
 		{% if is_first_page == False %}
