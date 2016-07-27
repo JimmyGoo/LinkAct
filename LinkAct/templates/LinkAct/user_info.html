@@ -74,7 +74,7 @@
 					</ul>
 		      		<ul class="nav navbar-nav navbar-right">
 		      			{% if has_login %}
-		      			<li><a id='user_name_id'>{{ user_name }}</a></li>
+		      			<li><a id='user_name_id'>{{ personal_msg.username}}</a></li>
 
 		        		<li><a href='../../?user_login=0'>登出</a></li>
 		        		<li class="dropdown">
@@ -341,11 +341,13 @@
 									{% for data in check_interest_msg %}
 									{% if data.2 == 1%}
 									<div class="checkbox">
+										<label for="checkboxes">
 										<input type="checkbox" name="interests" id="interests-0" value="{{data.0}}" checked = "check">
 										{{data.1}}
 									</div>
 									{% else %}
 									<div class="checkbox">
+										<label for="checkboxes">
 										<input type="checkbox" name="interests" id="interests-0" value="{{data.0}}">
 										{{data.1}}
 									</div>

@@ -55,11 +55,16 @@
 }
 #copy_right{
 	text-align: center;
+	background-color: white;
 }
-
+.bs-docs-footer{
+	background-color: white;
+}
 #user_img_id{
-	height: 13vh;
+	height: 10vh;
+	width: 10vh;
+	border-radius: 5vh;
 	position: absolute;
 	top: 1.5vh; 
-	right: 6vw;
+	right: 5vw;
 }

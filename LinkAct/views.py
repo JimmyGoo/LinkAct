@@ -499,6 +499,7 @@ def set_password_func(request):
 
 		obj.myuser.set_password(new_password1)
 		log_out(request)
+
 		return render(request, 'LinkAct/result_page.html', {'error_index':6, 'has_login':False})
 	else:
 		if has_own_avatar:
@@ -689,7 +690,11 @@ def search_people(request):
 			if endPos >= len(answer):
 				endPos = len(answer)
 
-			result = answer[startPos:endPos]
+			if answer[startPos].user.username == request.user.username:
+				result = answer[startPos + 1:endPos]
+			else:
+				result = answer[startPos:endPos]
+
 
 			temp_url = request.get_full_path()
 
@@ -697,13 +702,27 @@ def search_people(request):
 
 			next_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(next_page)
 
+			#整合用户#
+			pass_data = []
+			for show_user in result:
+				imgs = Img.objects.filter(id = show_user.get_head())
+				if len(imgs) != 0:
+					img = imgs[0]
+					has_own_avatar = True
+				else:
+					has_own_avatar = False
+					img = ''
+
+				pass_data.append({'other_user':show_user, 'other_img':img, 'other_has_own_avartar':has_own_avatar})
+
+
 			if has_own_avatar:
 				return render(request, 'LinkAct/linker_page.html', 
 						{
 							'img': img,
 							'has_own_avatar': has_own_avatar,
 							'has_login': has_login, 
-							'result':result, 
+							'pass_data':pass_data,
 							'current_page':int(search_page), 
 							'current_url':temp_url, 
 							'next_page_url':next_page_url, 
@@ -715,7 +734,7 @@ def search_people(request):
 						{
 							'has_own_avatar': has_own_avatar,
 							'has_login': has_login, 
-							'result':result, 
+							'pass_data':pass_data,
 							'current_page':int(search_page), 
 							'current_url':temp_url, 
 							'next_page_url':next_page_url, 
