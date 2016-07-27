@@ -32,7 +32,7 @@
     		</div>
 
     		{% if has_login %}
-    		{% if has_own_avatar%}
+    		{% if has_own_avatar and img.img%}
     		<img id='user_img_id' src={{ img.img.url }} />
     		{% else %}
     		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
@@ -55,7 +55,7 @@
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}

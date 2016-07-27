@@ -459,7 +459,7 @@ class MyUser(models.Model):
 		a = self.user
 		a.delete()
 		self.delete()
-	def create_activity(self, name, theme, locale, start_date, end_date, introduction):
+	def create_activity(self, name, theme, locale, start_date, end_date, introduction, act_img_id):
 		if not isinstance(theme, list):
 			return False
 		a = Activity()
@@ -471,6 +471,7 @@ class MyUser(models.Model):
 		a.end_date = end_date 
 		a.introduction = introduction
 		a.creator = self.get_id()
+		a.act_image = act_img_id
 		a.status = 'created'
 		a.save()
 		flag =  self.append_create_ongoing_acts(a.id)
@@ -494,104 +495,66 @@ class MyUser(models.Model):
 			results = [var for var in acts if var.id in coa]
 		return results
 	
-	def activity_filter(self, reference):
+	def activity_filter(self, style, reference):
 		results = []
-		if 'theme' in reference:
-			if not isinstance(reference['theme'], list):
-				return []
-			temps = {}
-			for item in Activity.objects.all():
-				temp = [var for var in item.get_theme() if var in reference['theme']]
-				temps[item] = temp
-			temps = sorted(temps.items(), key = lambda asd:asd[1], reverse = True)
-			for item in temps:
-				if len(item[1]) != 0:
-					results.append(item[0])
-		else:
-			for x in Activity.objects.all():
-				results.append(x)
-		if 'status' in reference:
-			if not isinstance(reference['status'], str):
-				return []
+		for item in Activity.objects.all():
+			results.append((item, 0))
+		if style == 'theme':
 			i = 0
-			while(i < len(results)):
-				if results[i].get_status() != reference['status']:
-					del results[i]
-				else:
-					i += 1
-		if 'name' in reference:
-			if not isinstance(reference['name'], str):
-				return []
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_theme_content())	
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
+		elif style == 'status':
 			i = 0
-			while(i < len(results)):
-				if results[i].get_name() != reference['name']:
-					del results[i]
-				else:
-					i += 1
-		if 'creator' in reference:
-			if not isinstance(reference['creator'], int):
-				return []
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_status())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
+		elif style == 'name':
 			i = 0
-			while(i < len(results)):
-				if results[i].get_creator() != reference['creator']:
-					del results[i]
-				else:
-					i += 1
-		if 'participant' in reference:
-			if not isinstance(reference['participant'], int):
-				return []
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_name())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1	
+		elif style == 'creator':
 			i = 0
-			while(i < len(results)):
-				if reference['participant'] not in results[i].get_participants():
-					del results[i]
-				else:
-					i += 1
-		if 'locale' in reference:
-			if not isinstance(reference['locale'], str):
-				return []
+			while i < len(results):
+				temp = self.str_similar(reference, User.objects.get(id = results[i][0].get_creator()).myuser.get_nickname())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				temp = self.str_similar(reference, User.objects.get(id = results[i][0].get_creator()).myuser.get_username())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1	
+		elif style == 'locale':
 			i = 0
-			while(i < len(results)):
-				if results[i].get_locale() != reference['locale']:
-					del results[i]
-				else:
-					i += 1
-		if 'create_time' in reference:
-			if not isinstance(reference['create_time'], datetime):
-				return []
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_locale())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
+		elif style == 'introduction':
 			i = 0
-			while(i < len(results)):
-				if results[i].get_create_time() != reference['create_time']:
-					del results[i]
-				else:
-					i += 1
-		if 'start_date' in reference:
-			if not isinstance(reference['start_date'], datetime):
-				return []
-			i = 0
-			while(i < len(results)):
-				if results[i].get_start_date() != reference['start_date']:
-					del results[i]
-				else:
-					i += 1
-		if 'end_date' in reference:
-			if not isinstance(reference['end_date'], datetime):
-				return []
-			i = 0
-			while(i < len(results)):
-				if results[i].get_end_date() != reference['end_date']:
-					del results[i]
-				else:
-					i += 1
-		if 'introduction' in reference:
-			if not isinstance(reference['introduction'], str):
-				return []
-			i = 0
-			while(i < len(results)):
-				if results[i].get_introduction() != reference['introduction']:
-					del results[i]
-				else:
-					i += 1
-		return results
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_introduction())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
+		i = 0
+		while(i < len(results)):
+			if results[i][1] == 0:
+				del results[i]
+			else:
+				i += 1
+		results = sorted(results, key = lambda asd:asd[1], reverse = True)
+		result = []
+		for x in results:
+			result.append(x[0])
+		return result
 	def str_similar(self, s, t):
 		result = 0
 		i = 0
@@ -707,6 +670,51 @@ class MyUser(models.Model):
 			a.save()
 			act.append_comments(a.id)
 			return True
+	def get_recommended_activities(self):
+		temp = []
+		for item in Activity.objects.all():
+			temp.append((item, 0))
+		
+		i = 0
+		while i < len(temp):
+			#参与者人数越多权值越大，一个参与者权值加1，一个好友权值加100
+			p = temp[i][0].get_participants()
+			p.append(temp[i][0].get_creator())
+			f = self.get_friends()
+			for x in p:
+				if x in f:
+					temp[i] = (temp[i][0], temp[i][1] + 100)
+				else:
+					temp[i] = (temp[i][0], temp[i][1] + 1)
+			#地点与用户相似会增加权值
+			similar = self.str_similar(self.get_city, temp[i][0].get_locale())
+			temp[i] = (temp[i][0], temp[i][1] + similar * 5)
+			#每一个与用户的爱好相关的主题增加权值10
+			user_theme = []
+			user_interests = self.get_interests()
+			for user_interest in user_interests:
+				for theme_id in Interest.objects.get(id = user_interest).get_linked_theme():
+					user_theme.append(theme_id)
+			act_theme = temp[i][0].get_theme()
+			for theme_id in user_theme:
+				if theme_id in act_theme:
+					temp[i] = (temp[i][0], temp[i][1] + 10)
+			i += 1
+		
+
+		#剔除权值为0的和状态不是未开始的
+		i = 0
+		while(i < len(temp)):
+			if temp[i][1] == 0 or temp[0].get_status() != 'created':
+				del temp[i]
+			else:
+				i += 1
+		#排序
+		temp = sorted(temp, key = lambda asd:asd[1], reverse = True)
+		result = []
+		for x in temp:
+			result.append(x[0])
+		return result
 
 
 	def __str__(self):
@@ -737,8 +745,12 @@ class Activity(models.Model):
 	supporters = models.CharField(max_length = 300, default = '[]')
 	#评论
 	comments = models.CharField(max_length = 300, default = '[]')
+	#缩略图
+	act_image = models.IntegerField(default = -1)
 
 	#get attribute
+	def get_act_image(self):
+		return self.act_image
 	def get_name(self):
 		return self.name
 	def get_status(self):
@@ -757,6 +769,14 @@ class Activity(models.Model):
 		if isinstance(self.theme, str):
 			return json.loads(self.theme)
 		return self.theme
+	def get_theme_content(self):
+		temp = self.get_theme()
+		result = ''
+		for var in temp:
+			if len(result) != 0:
+				result += ','
+			result += Theme.objects.get(id = var).get_content()
+		return result
 	def get_create_time(self):
 		return self.create_time
 	def get_start_date(self):
@@ -784,6 +804,9 @@ class Activity(models.Model):
 		return self.supporters
 
 	#set
+	def set_act_image(self, act_image):
+		self.act_image = act_image
+		self.save()
 	def set_name(self, name):
 		self.name = name
 		self.save()
@@ -920,10 +943,41 @@ class Activity(models.Model):
 
 class Interest(models.Model):
 	content = models.CharField(max_length = 20, default = '')
+	linked_theme = models.CharField(max_length = 500, default = '[]')
 	#get attribute
 	def get_content(self):
 		return self.content
+	def get_linked_theme(self):
+		if isinstance(self.linked_theme, str):
+			return json.loads(self.linked_theme)
+		return self.linked_theme
 	#set
+	def set_linked_theme(self, linked_theme):
+		if isinstance(linked_theme, str):
+			self.linked_theme = linked_theme
+		else:
+			self.linked_theme = json.dumps(linked_theme)
+		self.save()
+	def append_linked_theme(self, linked_theme_id):
+		s = self.get_linked_theme()
+		if linked_theme_id not in s:
+			s.append(linked_theme_id)
+			self.linked_theme = json.dumps(s)
+			self.save()
+			return True
+		self.linked_theme = json.dumps(s)
+		self.save()
+		return False
+	def remove_linked_theme(self, linked_theme_id):
+		s = self.get_linked_theme()
+		if linked_theme_id in s:
+			s.append(linked_theme_id)
+			self.linked_theme = json.dumps(s)
+			self.save()
+			return True
+		self.linked_theme = json.dumps(s)
+		self.save()
+		return False
 	def set_content(self, content):
 		self.content = content
 		self.save()

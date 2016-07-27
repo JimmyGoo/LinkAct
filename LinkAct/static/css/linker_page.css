@@ -40,6 +40,12 @@ figcaption.ratings a:hover
 {
     margin-bottom:0;
     }
+.emphasis button a{
+    color: white;
+}
+.emphasis button a:hover{
+    text-decoration: none;
+}
 span.tags 
 {
     background: #1abc9c;
@@ -50,9 +56,9 @@ span.tags
     }
 
 #other_user_img{
-    height: 20vh;
-    width: 20vh;
-    border-radius: 10vh;
+    height: 15vh;
+    width: 15vh;
+    border-radius: 7.5vh;
 }
 
  #adv-search {
