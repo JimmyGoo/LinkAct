@@ -597,10 +597,14 @@ class MyUser(models.Model):
 		i = 0
 		while(i < len(t)):
 			j = 0
-			while(i + j < len(t) and j < len(s)):
+			while(True):
 				if t[i + j] == s[j]:
 					j = j + 1
 				else:
+					if j > result:
+						result = j
+					break
+				if i + j >= len(t) or j >= len(s):
 					if j > result:
 						result = j
 					break
@@ -615,53 +619,69 @@ class MyUser(models.Model):
 		for item in MyUser.objects.all():
 			results.append((item, 0))
 		if style == 'username':
-			print('fuck1')
-			print(reference)
-			for x in results:
-				temp = self.str_similar(reference, x[0].get_username())				
-				if temp >  x[1]:
-					x[1] = temp
+			i = 0
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_username())	
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
 					
 		elif style == 'id':
-			for x in results:
-
-				if reference == x[0].get_id():
-					x[1] = 1
+			i = 0
+			while i < len(results):
+				if reference == results[i][0].get_id():
+					results[i] = (results[i][0], 1)
+				i += 1
 		elif style == 'birthday':
-			for x in results:
-				temp = self.str_similar(reference, str(x[0].get_birthday()))
-				if temp >  x[1]:
-					x[1] = temp
+			i = 0
+			while i < len(results):
+				temp = self.str_similar(reference, str(results[i][0].get_birthday()))
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
 		elif style == 'friends':
-			for x in results:
-				temp = [var for var in x.get_friends() if var in reference]
-				if len(temp) >  x[1]:
-					x[1] = len(temp)
+			i = 0
+			while i < len(results):
+				temp = [var for var in results[i].get_friends() if var in reference]
+				if len(temp) >  results[i][1]:
+					results[i] = (results[i][0], len(temp))
+				i += 1
 		elif style == 'email':
-			for x in results:
-				temp = self.str_similar(reference, x[0].get_email())
-				if temp >  x[1]:
-					x[1] = temp
+			i = 0
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_email())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
 		elif style == 'nickname':
-			for x in results:
-				temp = self.str_similar(reference, x[0].get_nickname())
-				if temp >  x[1]:
-					x[1] = temp
+			i = 0
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_nickname())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
 		elif style == 'city':
-			for x in results:
-				temp = self.str_similar(reference, x[0].get_city())
-				if temp >  x[1]:
-					x[1] = temp
+			i = 0
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_city())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
 		elif style == 'gender':
-			for x in results:
-				temp = self.str_similar(reference, x[0].get_gender())
-				if temp >  x[1]:
-					x[1] = temp
+			i = 0
+			while i < len(results):
+				temp = self.str_similar(reference, results[i][0].get_gender())
+				if temp >  results[i][1]:
+					results[i] = (results[i][0], temp)
+				i += 1
 		elif style == 'interests':
-			for x in results:
-				temp = [var for var in x.get_interests() if var in reference]
-				if len(temp) >  x[1]:
-					x[1] = len(temp)
+			i = 0
+			while i < len(results):
+				temp = [var for var in results[i].get_interests() if var in reference]
+				if len(temp) >  results[i][1]:
+					results[i] = (results[i][0], len(temp))
+				i += 1
+		print('here', results)
 		i = 0
 		while(i < len(results)):
 			if results[i][1] == 0:
