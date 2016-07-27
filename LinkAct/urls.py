@@ -18,6 +18,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^act_info/check_act/$', views.check_act_msg),
+    url(r'^activities/create_activity/$', views.create_act),
     url(r'^act_info/$', views.show_act),
     url(r'^personal_info/$', views.show_people),
     url(r'user/info/', views.check_personal_msg, name='user_info_url'),

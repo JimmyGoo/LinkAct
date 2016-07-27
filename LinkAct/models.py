@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import date
+from datetime import date, datetime
 from TermProject import settings
 import ast
 import json
@@ -46,7 +46,23 @@ class MyUser(models.Model):
 
 	friends = models.CharField(max_length = 300, default = '[]')
 
+	friend_movement = models.CharField(max_length = 300, default = '[]')
+	movement_name = models.CharField(max_length = 300, default = '[]')
+	movement_link = models.CharField(max_length = 300, default = '[]')
+
 	#get attribute
+	def get_friend_movement(self):
+		if isinstance(self.friend_movement, str):
+			return json.loads(self.friend_movement)
+		return self.friend_movement
+	def get_movement_name(self):
+		if isinstance(self.movement_name, str):
+			return json.loads(self.movement_name)
+		return self.movement_name
+	def get_movement_link(self):
+		if isinstance(self.movement_link, str):
+			return json.loads(self.movement_link)
+		return self.movement_link
 	def get_username(self):
 		return self.user.get_username()
 	def get_nickname(self):
@@ -100,6 +116,78 @@ class MyUser(models.Model):
 
 
 	#set attribute
+	def set_friend_movement(self, friend_movement):
+		if isinstance(friend_movement, str):
+			self.friend_movement = friend_movement
+		else:
+			self.friend_movement = json.dumps(friend_movement)
+		self.save()
+	def append_friend_movement(self, friend_movement):
+		f = self.get_friend_movement()
+		f.append(friend_movement)
+		self.friend_movement = json.dumps(f)
+		self.save()
+	def remove_friend_movement(self, friend_movement):
+		f = self.get_friend_movement()
+		if friend_movement in f:
+			f.remove(friend_movement)
+			self.friend_movement = json.dumps(f)
+			self.save()
+			return True
+		self.friend_movement = json.dumps(f)
+		self.save()
+		return False
+	def clear_friend_movement(self):
+		temp = []
+		self.set_friend_movement(temp)
+	def set_movement_name(self, movement_name):
+		if isinstance(movement_name, str):
+			self.movement_name = movement_name
+		else:
+			self.movement_name = json.dumps(movement_name)
+		self.save()
+	def append_movement_name(self, movement_name):
+		f = self.get_movement_name()
+		f.append(movement_name)
+		self.movement_name = json.dumps(f)
+		self.save()
+	def remove_movement_name(self, movement_name):
+		f = self.get_movement_name()
+		if movement_name in f:
+			f.remove(movement_name)
+			self.movement_name = json.dumps(f)
+			self.save()
+			return True
+		self.movement_name = json.dumps(f)
+		self.save()
+		return False
+	def clear_movement_name(self):
+		temp = []
+		self.set_movement_name(temp)
+	def set_movement_link(self, movement_link):
+		if isinstance(movement_link, str):
+			self.movement_link = movement_link
+		else:
+			self.movement_link = json.dumps(movement_link)
+		self.save()
+	def append_movement_link(self, movement_link):
+		f = self.get_movement_link()
+		f.append(movement_link)
+		self.movement_link = json.dumps(f)
+		self.save()
+	def remove_movement_link(self, movement_link):
+		f = self.get_movement_link()
+		if movement_link in f:
+			f.remove(movement_link)
+			self.movement_link = json.dumps(f)
+			self.save()
+			return True
+		self.movement_link = json.dumps(f)
+		self.save()
+		return False
+	def clear_movement_link(self):
+		temp = []
+		self.set_movement_link(temp)
 	def set_username(self, username):
 		self.user.username = username
 		self.user.save()
@@ -371,16 +459,18 @@ class MyUser(models.Model):
 		a = self.user
 		a.delete()
 		self.delete()
-	def create_activity(self, theme, locale, start_date, end_date, introduction):
+	def create_activity(self, name, theme, locale, start_date, end_date, introduction):
 		if not isinstance(theme, list):
-			return false
+			return False
 		a = Activity()
+		a.name = name
 		a.theme = json.dumps(theme)
 		a.locale = locale
+		a.create_time = datetime.now()
 		a.start_date = start_date
 		a.end_date = end_date 
 		a.introduction = introduction
-		a.creator = self.id
+		a.creator = self.get_id()
 		a.status = 'created'
 		a.save()
 		flag =  self.append_create_ongoing_acts(a.id)
@@ -429,6 +519,15 @@ class MyUser(models.Model):
 					del results[i]
 				else:
 					i += 1
+		if 'name' in reference:
+			if not isinstance(reference['name'], str):
+				return []
+			i = 0
+			while(i < len(results)):
+				if results[i].get_name() != reference['name']:
+					del results[i]
+				else:
+					i += 1
 		if 'creator' in reference:
 			if not isinstance(reference['creator'], int):
 				return []
@@ -456,12 +555,12 @@ class MyUser(models.Model):
 					del results[i]
 				else:
 					i += 1
-		if 'create_date' in reference:
-			if not isinstance(reference['create_date'], date):
+		if 'create_time' in reference:
+			if not isinstance(reference['create_time'], date):
 				return []
 			i = 0
 			while(i < len(results)):
-				if results[i].get_create_date() != reference['create_date']:
+				if results[i].get_create_time() != reference['create_time']:
 					del results[i]
 				else:
 					i += 1
@@ -589,6 +688,8 @@ class MyUser(models.Model):
 		return self.nickname
 		
 class Activity(models.Model):
+	#名字
+	name = models.CharField(max_length = 20, default = '')
 	#状态
 	status = models.CharField(max_length = 20, default = '')
 	#发起人ID
@@ -600,7 +701,7 @@ class Activity(models.Model):
 	#主题
 	theme = models.CharField(max_length = 300, default = '[]')
 	#发起时间
-	create_date = models.DateField(default = date.today)
+	create_time = models.DateTimeField(default = datetime.now)
 	#开始时间
 	start_date = models.DateField(default = date.today)
 	#结束时间
@@ -611,6 +712,8 @@ class Activity(models.Model):
 	supporters = models.CharField(max_length = 300, default = '[]')
 
 	#get attribute
+	def get_name(self):
+		return self.name
 	def get_status(self):
 		return self.status
 	def get_id(self):
@@ -627,8 +730,8 @@ class Activity(models.Model):
 		if isinstance(self.theme, str):
 			return json.loads(self.theme)
 		return self.theme
-	def get_create_date(self):
-		return self.create_date
+	def get_create_time(self):
+		return self.create_time
 	def get_start_date(self):
 		return self.start_date
 	def get_end_date(self):
@@ -641,6 +744,9 @@ class Activity(models.Model):
 		return self.supporters
 
 	#set
+	def set_name(self, name):
+		self.name = name
+		self.save()
 	def set_status(self, status):
 		self.status = status
 		self.save()
