@@ -392,6 +392,15 @@ def check_personal_msg(request):
 			obj.myuser.set_city(params.get('city', ''))
 			obj.myuser.set_gender(params.get('gender', ''))
 			obj.myuser.set_phonenumber(params.get('phone_number', ''))
+
+			city_string = ''
+			if params.get('province','') != '未填写':
+				city_string += params.get('province', '')
+				city_string += ' '
+				city_string += params.get('city','')
+
+			obj.myuser.set_city(city_string)
+
 			temp_list = params.getlist('interests', '')
 			obj.myuser.set_interests([])
 			for x in temp_list:
@@ -433,6 +442,16 @@ def check_personal_msg(request):
 		if interest_msg == "":
 			interest_msg = "未填写"	
 
+		if request.user.myuser.city != '':
+			default_province = request.user.myuser.city.split(' ');
+			default_city = default_province[1]
+			default_province = default_province[0]
+		else:
+			default_city = "未填写"
+			default_province = "未填写"
+
+
+
 		if has_own_avatar:
 			print(request.user.myuser.nickname)
 			return render(request, 'LinkAct/user_info.html', 
@@ -443,7 +462,9 @@ def check_personal_msg(request):
 						'interest_msg':interest_msg, 
 						'img': img, 
 						'has_own_avatar':has_own_avatar,
-						'info_change_status':info_change_status
+						'info_change_status':info_change_status,
+						'default_province':default_province,
+						'default_city':default_city,
 					})
 		else:
 			print(request.user.myuser.nickname)
@@ -454,7 +475,9 @@ def check_personal_msg(request):
 						'personal_msg':request.user, 
 						'interest_msg':interest_msg, 
 						'has_own_avatar':has_own_avatar,
-						'info_change_status':info_change_status
+						'info_change_status':info_change_status,
+						'default_province':default_province,
+						'default_city':default_city,
 					})
 
 def set_password_func(request):
@@ -705,15 +728,15 @@ def search_people(request):
 			#整合用户#
 			pass_data = []
 			for show_user in result:
-				imgs = Img.objects.filter(id = show_user.get_head())
-				if len(imgs) != 0:
-					img = imgs[0]
+				other_imgs = Img.objects.filter(id = show_user.get_head())
+				if len(other_imgs) != 0:
+					other_img = other_imgs[0]
 					has_own_avatar = True
 				else:
 					has_own_avatar = False
-					img = ''
+					other_img = ''
 
-				pass_data.append({'other_user':show_user, 'other_img':img, 'other_has_own_avartar':has_own_avatar})
+				pass_data.append({'other_user':show_user, 'other_img':other_img, 'other_has_own_avartar':has_own_avatar})
 
 
 			if has_own_avatar:
