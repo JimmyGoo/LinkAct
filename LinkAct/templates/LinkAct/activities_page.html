@@ -165,7 +165,7 @@
 		<form method='post'>
 			<input type='submit' name='submit' value='全部忽略'>
 		</form>
-		
+		 -->
 		{% for r in result %}
 		    <h2>
 		      <p>
@@ -174,7 +174,7 @@
 		       <a href="../act_info/?id={{ r.id }}&last_page={{ current_url }}">详情</a>
 		    </h2>
 		{% endfor %}
- -->
+
 		<a href="{{ no_param_path }}create_activity/">创建活动</a>
 		
 		{% if is_first_page == False %}
