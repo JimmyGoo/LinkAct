@@ -40,6 +40,12 @@ figcaption.ratings a:hover
 {
     margin-bottom:0;
     }
+.emphasis button a{
+    color: white;
+}
+.emphasis button a:hover{
+    text-decoration: none;
+}
 span.tags 
 {
     background: #1abc9c;
