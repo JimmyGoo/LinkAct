@@ -459,7 +459,7 @@ class MyUser(models.Model):
 		a = self.user
 		a.delete()
 		self.delete()
-	def create_activity(self, name, theme, locale, start_date, end_date, introduction):
+	def create_activity(self, name, theme, locale, start_date, end_date, introduction, act_img_id):
 		if not isinstance(theme, list):
 			return False
 		a = Activity()
@@ -471,6 +471,7 @@ class MyUser(models.Model):
 		a.end_date = end_date 
 		a.introduction = introduction
 		a.creator = self.get_id()
+		a.act_image = act_img_id
 		a.status = 'created'
 		a.save()
 		flag =  self.append_create_ongoing_acts(a.id)
@@ -723,8 +724,12 @@ class Activity(models.Model):
 	introduction = models.CharField(max_length = 500, default = '[]')
 	#点赞人
 	supporters = models.CharField(max_length = 300, default = '[]')
+	#缩略图
+	act_image = models.IntegerField(default = -1)
 
 	#get attribute
+	def get_act_image(self):
+		return self.act_image
 	def get_name(self):
 		return self.name
 	def get_status(self):
@@ -757,6 +762,9 @@ class Activity(models.Model):
 		return self.supporters
 
 	#set
+	def set_act_image(self, act_image):
+		self.act_image = act_image
+		self.save()
 	def set_name(self, name):
 		self.name = name
 		self.save()

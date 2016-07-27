@@ -17,14 +17,13 @@
 		<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/navigation.css" %}">
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{%static "css/activities_page.css" %}">
+
+	
 		
 		<script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>
 
-		<script type="text/javascript">
-			$(document).ready(function(){
-			  $('.combobox').combobox();
-			});
-		</script>
 
 	</head>
 	<body margin='0px'>
@@ -36,7 +35,7 @@
     		</div>
 
     		{% if has_login %}
-    		{% if has_own_avatar%}
+    		{% if has_own_avatar and img.img%}
     		<img id='user_img_id' src={{ img.img.url }} />
     		{% else %}
     		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
@@ -112,36 +111,6 @@
 			<p id="subtitle">make the life better</p>
 		</div>
 
-		<div class="container">
-			<div class="row">
-				<div class="[ col-xs-12 col-sm-offset-2 col-sm-8 ]">
-					<ul class="event-list">
-						<li>
-							<time datetime="2014-07-20">
-								<span class="day">4</span>
-								<span class="month">Jul</span>
-								<span class="year">2014</span>
-								<span class="time">ALL DAY</span>
-							</time>
-							<img alt="Independence Day" src="https://farm4.staticflickr.com/3100/2693171833_3545fb852c_q.jpg" />
-							<div class="info">
-								<h2 class="title">Independence Day</h2>
-								<p class="desc">United States Holiday</p>
-							</div>
-							<div class="social">
-								<ul>
-									<li class="facebook" style="width:33%;"><a href="#facebook"><span class="fa fa-facebook"></span></a></li>
-									<li class="twitter" style="width:34%;"><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
-									<li class="google-plus" style="width:33%;"><a href="#google-plus"><span class="fa fa-google-plus"></span></a></li>
-								</ul>
-							</div>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
-
-
 		<!-- <form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
 		    <div class="input-group">
@@ -157,26 +126,97 @@
 		    </div>		    
 		    <input type="submit" name="submit" value="search_submit">
 		</form>
-
-		{% for data in new_data %}	
-			<p>{{ data.0 }}</p>
-		    <a href="{{ data.2 }}">{{ data.1 }}</a> 
-		{% endfor %}
+ -->
 		
-		{% for r in result %}
+	<!-- 	{% for r in result %}
 		    <h2>
 		      <p>
 		        <input type='text' value={{r.name}} >
 		      </p>
 		       <a href="../act_info/?id={{ r.id }}&last_page={{ current_url }}">详情</a>
 		    </h2>
-		{% endfor %}
- -->
+		{% endfor %} -->
+
+
+		<div class="container" style="padding-top:30px;padding-bottom:30px;">
+		    <div class="row">    
+		        <div class="col-md-12">
+				    <form method="POST" enctype="multipart/form-data">
+				    	{% csrf_token %}
+		            	<div class="input-group" id="search_group">
+			                <input type="hidden" name="search_class" id="search_class" 
+			                value="{{search_class_pass_value}}">       
+			                <input type="text" class="form-control" name="search_content" placeholder="发现其他领客"
+			                value="{{search_content_pass_text}}">
+			                 <div class="input-group-btn search-panel">
+			                    <button type="button" class="btn btn-default dropdown-toggle search-btn-right" data-toggle="dropdown">
+			                        <span id="search_class_text" name="search_class_text">
+			                        	{{search_class_pass_text}}</span> <span class="caret"></span>
+			                    </button>
+			                    
+			                    <ul class="dropdown-menu" role="menu">
+			                      	
+			                      	<li><a value='username'>按照用户搜索</a></li>
+			                      	<li><a value='nickname'>按照昵称搜索</a></li>
+			                      	<li><a value='city'>按照城市搜索</a></li>			                     
+			                      	<li class="divider"></li>
+			                      	<li><a value='all'>无筛选条件</a></li>
+			                    </ul>
+			                </div>
+			                <span class="input-group-btn">
+			                    <button class="btn btn-default" type="submit" name="submit" value="search_submit"><span class="glyphicon glyphicon-search"></span></button>
+			                </span>
+		            	</div>
+		            </form>
+		        </div>
+			</div>
+		</div>
+
+
+		<div class="container">
+			<div class="row">
+				<div class="[ col-xs-12 col-sm-offset-2 col-sm-8 ]">
+					<ul class="event-list">
+						{% for show_act in pass_data %}
+						<li>
+							<time datetime="2014-07-20">
+								<span class="day">{{show_act.act.start_date|date:"d"}}</span>
+								<span class="month">{{show_act.act.start_date|date:"m月"}}</span>
+								<span class="year">{{show_act.act.start_date|date:"Y"}}</span>
+								
+							</time>
+							{% if show_act.has_show_img == True%}
+							<img alt="" src="{{show_act.pass_img.img.url}}" />
+							{% else %}
+							<img alt="" src="{%static "img/default_act_img.jpg" %}"/>
+							{% endif %}
+							<div class="info">
+								<h2 class="title">{{show_act.act.name}}</h2>
+								<p class="desc">{{show_act.act.locale}}</p>
+								<p class="desc">{{show_act.act.end_date}}</p>
+							</div>
+							<div class="social">
+								<ul>
+									<li class="facebook" style="width:33%;"><a href="#facebook"><span class="fa fa-facebook"></span></a></li>
+									<li class="twitter" style="width:34%;"><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+									<li class="google-plus" style="width:33%;"><a href="#google-plus"><span class="fa fa-google-plus"></span></a></li>
+								</ul>
+							</div>
+						</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+
+
+		
 		<a href="{{ no_param_path }}create_activity/">创建活动</a>
 		<a href="{{ next_page_url }}">下一页</a>
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
+				<hr/>
 				<p>由古志诚、向首兴、楼昀恺设计以及建造的网站</p>
 				<p>感谢github上开源的bootstrap框架以及django框架</p>
 				<p>若有建议以及意见，请不拘束地联系我们</p>
@@ -186,4 +226,5 @@
 			</div>
 		</footer>
 	</body>
+
 </html>
