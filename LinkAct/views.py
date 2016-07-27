@@ -3,7 +3,7 @@
 #
 
 
-from .models import MyUser,Activity,Theme
+from .models import MyUser,Activity,Theme,User
 from django.shortcuts import render
 from django.contrib import auth
 from django.contrib.auth.models import AnonymousUser
@@ -949,6 +949,9 @@ def search_people(request):
 def search_act(request):
 	#-----------登录判定----------#
 	has_login = True
+	has_own_avatar = False
+	head_img = ''
+	username = ''
 	user = request.user
 	if request.method == 'GET':
 		login_status = request.GET.get('user_login','-1')
@@ -957,8 +960,14 @@ def search_act(request):
 			print('logout successfully')
 	if request.user.username == AnonymousUser.username:
 		has_login = False
+
 	else:
+		username = request.user.username
 		has_login = True
+		head_imgs = Img.objects.filter(id = user.myuser.get_head())
+		if len(head_imgs) != 0:
+			head_img = head_imgs[0]
+			has_own_avatar = True
 	#-----------------------------#
 
 	if request.method == 'GET':
@@ -1031,15 +1040,32 @@ def search_act(request):
 
 		temp_url = request.get_full_path()
 		next_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(next_page)
-
-		return render(request, 'LinkAct/activities_page.html', 
+		if has_own_avatar:
+			return render(request, 'LinkAct/activities_page.html', 
 			{
+				'user_name':username,
+				'img':head_img,
 				'pass_data':pass_data, 
 				'current_page':int(search_page), 
 				'current_url':request.get_full_path(), 
 				'next_page_url':next_page_url,
 			 	'no_param_path':request.path, 
-			 	'new_data':new_data
+			 	'new_data':new_data,
+			 	'has_login':has_login,
+			 	'has_own_avatar':has_own_avatar,
+		 	})
+		else:
+		 	return render(request, 'LinkAct/activities_page.html', 
+			{
+				'user_name':username,
+				'pass_data':pass_data, 
+				'current_page':int(search_page), 
+				'current_url':request.get_full_path(), 
+				'next_page_url':next_page_url,
+			 	'no_param_path':request.path, 
+			 	'new_data':new_data,
+			 	'has_login':has_login,
+			 	'has_own_avatar':has_own_avatar,
 		 	})
 	elif request.method == 'POST':
 		params = request.POST
@@ -1093,10 +1119,29 @@ def show_act(request):
 		print('mada', comment_info)
 		newCommentForm = CommentForm()
 
+		act_infomation = {}
+		act_infomation['act'] = act_obj
+		act_infomation['creator'] = User.objects.get(id = act_obj.get_creator()).myuser
+		temp_p_id = act_obj.get_participants()
+		temp_p_myuser = []
+		for x in temp_p_id:
+			temp_p_myuser.append(User.objects.get(id = x).myuser)
+		act_infomation['participants'] = temp_p_myuser
+		temp_theme_id = act_obj.get_theme()
+		temp_theme = []
+		for x in temp_theme_id:
+			temp_theme.append(Theme.objects.get(id = x))
+		act_infomation['theme'] = temp_theme
+		temp_p_id = act_obj.get_supporters()
+		temp_p_myuser = []
+		for x in temp_p_id:
+			temp_p_myuser.append(User.objects.get(id = x).myuser)
+		act_infomation['supporters'] = temp_p_myuser
+
 
 		return render(request, 'LinkAct/act_info.html', {'has_login': has_login,
 														'form':actForm,
-														'act_obj':act_obj,
+														'act_infomation':act_infomation,
 														'last_page':current_page,
 														'this_page':this_page,
 														'this_page_no_para':this_page_no_para,

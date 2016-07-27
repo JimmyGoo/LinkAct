@@ -236,7 +236,28 @@
 		<br>
 		<br>
 
-		<p>{{ act_obj.as_p }}</p>
+		<p>活动名字：{{ act_infomation.act.name }}</p>
+		<p>活动状态：{{ act_infomation.act.status }}</p>
+		<p>活动发起人：{{ act_infomation.creator.nickname }}</p>
+		<p>活动参与人：</p>
+		{% for participant in act_infomation.participants %}
+		<a>{{ participant.nickname }}</a>
+		{% endfor %}
+		<p>活动地点：{{ act_infomation.act.locale }}</p>
+		<p>活动主题：</p>
+		{% for theme in act_infomation.theme %}
+		<a>{{ theme.content }}</a>
+		{% endfor %}
+		<p>活动发起时间：{{ act_infomation.act.create_time }}</p>
+		<p>活动开始时间：{{ act_infomation.act.start_date }}</p>
+		<p>活动结束时间：{{ act_infomation.act.end_date }}</p>
+		<p>活动介绍：{{ act_infomation.act.introduction }}</p>
+		<p>活动点赞人：</p>
+		{% for supporter in act_infomation.supporters %}
+		<a>{{ supporter.nickname }}</a>
+		{% endfor %}
+
+
 		<h2>历史评论：</h2>
 		{% for comment in comment_info %}
 		<div>

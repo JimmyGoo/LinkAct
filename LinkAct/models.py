@@ -669,6 +669,8 @@ class MyUser(models.Model):
 			a.commenter = self.get_id()
 			a.save()
 			act.append_comments(a.id)
+			if a.score > 3:
+				act.append_supporters(self.get_id())
 			return True
 	def get_recommended_activities(self):
 		temp = []
