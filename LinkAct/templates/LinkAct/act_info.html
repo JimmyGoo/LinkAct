@@ -237,6 +237,35 @@
 		<br>
 
 		<p>{{ act_obj.as_p }}</p>
+		<h2>历史评论：</h2>
+		{% for comment in comment_info %}
+		<div>
+			<p>
+				评论人：
+			</p>
+			{{ comment.0 }}
+			<p>
+				评分：
+			</p>
+			{{ comment.1 }}
+			<p>
+				评论内容：
+			</p>
+			{{ comment.2 }}
+			<p>
+				评论时间：
+			</p>
+			{{ comment.3 }}
+		</div>
+			
+		{% endfor %}
+		
+		<form method='post'>
+			{% csrf_token %}
+			<p>创建新评论：{{ form.as_p }}</p>
+			<input type='submit' name='submit' value='提交评论'>
+			<input type='hidden' name='act_id' value='{{ act_id }}'>
+		</form>
 
 		{% if isCreator == True %}
 			<a href="{{ this_page_no_para }}check_act/?id={{ act_id }}&back_page={{ this_page }}">修改活动信息</a>
@@ -244,8 +273,14 @@
 
 		<form method='post'>
 			{% csrf_token %}
+
+			{% if isParticipant == False %}
 			<input type='submit' name='submit' value='参加'>
+			{% endif %}
+
+			{% if isParticipant == True %}
 			<input type='submit' name='submit' value='退出'>
+			{% endif %}
 			<input type='hidden' name='act_id' value='{{ act_id }}'>
 		</form>
 

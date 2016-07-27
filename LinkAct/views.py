@@ -13,11 +13,12 @@ from .forms import RegisterForm
 from .forms import LogForm
 from .forms import PersonalInfoForm
 from .forms import SetPasswordForm
+from .forms import CommentForm
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from LinkAct.models import Img, Interest
 import string
-from datetime import date
+from datetime import date, datetime
 from .forms import ActForm
 from django.utils import timezone
 
@@ -720,17 +721,24 @@ def search_people(request):
 				print('fuck')
 				print(search_class)
 				answer = user.myuser.user_filter(search_class, search_content)
-				print(answer)
+				print('在这', answer)
 
 
 
 
+			is_last_page = False
+			is_first_page = False
+			
 			startPos = (int(search_page) - 1) * 10
 			endPos = int(search_page) * 10
 			if endPos >= len(answer):
 				endPos = len(answer)
+				is_last_page = True
 
-			if len(answer) > 0 and answer[startPos].user.username == request.user.username:
+			if startPos == 0:
+				is_first_page = True
+
+			if answer[startPos].user.username == request.user.username:
 				result = answer[startPos + 1:endPos]
 			else:
 				result = answer[startPos:endPos]
@@ -739,8 +747,11 @@ def search_people(request):
 			temp_url = request.get_full_path()
 
 			next_page = int(search_page) + 1
+			front_page = next_page - 2
 
 			next_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(next_page)
+			front_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(front_page)
+			first_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=1"
 
 			#整合用户#
 			pass_data = []
@@ -778,6 +789,19 @@ def search_people(request):
 					print(search_class_pass_text)
 					break;
 
+			waiting_id = request.user.myuser.get_waiting()
+			waiting_link = []
+
+			c_path = request.get_full_path()
+
+			for index in range(0, len(waiting_id)):
+				aim = request.path + "../personal_info/?id=" + waiting_id[index] + "&last_page=" + c_path
+				waiting_link.append(aim)
+
+			requests = []
+			for i in range(0, len(waiting_id)):
+				requests.append((waiting_id, waiting_link, User.objects.get(id=waiting_id[i]).myuser.nickname))
+
 			if has_own_avatar:
 				return render(request, 'LinkAct/linker_page.html', 
 						{
@@ -787,8 +811,10 @@ def search_people(request):
 							'pass_data':pass_data,
 							'current_page':int(search_page), 
 							'current_url':temp_url, 
-							'next_page_url':next_page_url, 
-							'requests':request.user.myuser.get_waiting(),
+							'next_page_url':next_page_url,
+							'front_page_url':front_page_url,
+							'first_page_url':first_page_url, 
+							'requests':requests,
 							'user_name': user_name,
 							'search_class_pass_value':search_class_pass_value,
 							'search_class_pass_text':search_class_pass_text,
@@ -802,12 +828,14 @@ def search_people(request):
 							'pass_data':pass_data,
 							'current_page':int(search_page), 
 							'current_url':temp_url, 
-							'next_page_url':next_page_url, 
+							'next_page_url':next_page_url,
+							'front_page_url':front_page_url,
+							'first_page_url':first_page_url,
 							'requests':request.user.myuser.get_waiting(),
 							'user_name': user_name,
 							'search_class_pass_value':search_class_pass_value,
 							'search_class_pass_text':search_class_pass_text,
-							'search_content_pass_text':search_content_pass_text,
+							'search_content_pass_text':search_content,
 						})   
 
 		elif request.method == 'POST':
@@ -865,6 +893,9 @@ def search_act(request):
 		#排序方法，为1时表示按照类别倒序排序，不搜索只排序
 		search_order = request.GET['search_order']
 
+		if search_class == 'status':
+			check_activity_status(Activity.objects.all())
+
 
 		answer = []
 
@@ -878,22 +909,35 @@ def search_act(request):
 		elif search_class == '':
 			return
 
+		is_last_page = False
+		is_first_page = False
+
 		startPos = (int(search_page) - 1) * 10
 		endPos = int(search_page) * 10
 		if endPos >= len(answer):
 			endPos = len(answer)
+			is_last_page = True
+
+		if startPos == 0:
+			is_first_page = True
 
 		result = answer[startPos:endPos]
+		result = check_activity_status(result)
 
 		new_movements = request.user.myuser.get_friend_movement()
 		new_names = request.user.myuser.get_movement_name()
 		new_links = request.user.myuser.get_movement_link()
+		new_person_names = []
+
+		for index in range(0, len(new_movements)):
+			new_person_names.append(User.objects.get(int(new_movements[index])).myuser.nickname)
+
 		new_data = []
 		for i in range(0, len(new_movements)):
-			new_data.append((new_movements[i], new_names[i], new_links[i]))
-		request.user.myuser.clear_friend_movement()
-		request.user.myuser.clear_movement_name()
-		request.user.myuser.clear_movement_link()
+			new_data.append((new_movements[i], new_names[i], new_links[i], new_person_names[i]))
+		#request.user.myuser.clear_friend_movement()
+		#request.user.myuser.clear_movement_name()
+		#request.user.myuser.clear_movement_link()
 		print('哈哈哈', new_data, type(new_data))
 		for (x,y,z) in new_data:
 			print(x,y,z)
@@ -910,6 +954,12 @@ def search_act(request):
 			aim_url = request.path
 			aim_url = aim_url + "?search_class=" + params.get('search_class', '') + "&search_content=" + params.get('search_content', '') + "&search_order=0&search_page=1" 
 			return HttpResponseRedirect(aim_url)
+		elif request.POST.get('submit') == '全部忽略':
+			request.user.myuser.clear_friend_movement()
+			request.user.myuser.clear_movement_name()
+			request.user.myuser.clear_movement_link()
+			return HttpResponseRedirect('./')
+
 
 #展示具体活动的界面，返回按钮的链接应为<a href={{ last_page }}>， 若是创建者，则应存在链接“修改活动信息”，应为<a href=this_page_no_para + 'change/?id=' + act_obj.id + '&last_page=' + this_page>
 def show_act(request):
@@ -927,7 +977,7 @@ def show_act(request):
 	if request.method == 'GET':
 		index = int(request.GET['id'])
 		current_page = request.GET['last_page'] + "&search_content=" + str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
-		act_obj = Activity.objects.filter(id=index)
+		act_obj = Activity.objects.filter(id=index)[0]
 
 		this_page = request.get_full_path()
 		this_page_no_para = request.path
@@ -936,11 +986,32 @@ def show_act(request):
 
 		#是否活动发起人，决定了是否能修改活动信息
 		isCreator = False
-		if request.user.id == act_obj[0].creator:
+		if request.user.id == act_obj.creator:
 			isCreator = True
 
-		return render(request, 'LinkAct/act_info.html', {'has_login': has_login, 'form':actForm, 'act_obj':act_obj, 'last_page':current_page, 'this_page':this_page, 'this_page_no_para':this_page_no_para, 'isCreator':isCreator, 'act_id':index})
+		isParticipant = isCreator
+		if request.user.id in act_obj.get_participants():
+			isParticipant = True
 
+		comments = act_obj.get_comments_content()
+		comment_info = []
+		for x in comments:
+			comment_info.append((x.get_commenter_name(), x.get_score(), x.get_content(), x.get_comment_time()))
+		print('mada', comment_info)
+		newCommentForm = CommentForm()
+
+
+		return render(request, 'LinkAct/act_info.html', {'has_login': has_login,
+														'form':actForm,
+														'act_obj':act_obj,
+														'last_page':current_page,
+														'this_page':this_page,
+														'this_page_no_para':this_page_no_para,
+														'isCreator':isCreator,
+														'isParticipant':isParticipant,
+														'act_id':index,
+														'comment_info':comment_info,
+														'form':newCommentForm})
 	elif request.method == 'POST':
 		if request.POST.get('submit') == '参加':
 			index = request.POST.get('act_id', '')
@@ -950,11 +1021,9 @@ def show_act(request):
 
 			for i in range(0, len(request.user.myuser.get_friends())):
 				other_id = request.user.myuser.get_friends()[i]
-				print('我操', other_id)
 				friend = User.objects.filter(id=other_id)[0].myuser
 				movement_msg = str(request.user.myuser.get_nickname()) + '参加了活动'
 				friend.append_friend_movement(movement_msg)
-				print(friend.get_friend_movement())
 				friend.append_movement_name(str(obj.name))
 				friend.append_movement_link(str(request.get_full_path()))
                                 
@@ -964,14 +1033,18 @@ def show_act(request):
 			obj.remove_participants(request.user.id)
 			request.user.myuser.remove_participate_ongoing_acts(index)
 
-			for i in range(0, len(request.user.myuser.friends)):
+			for i in range(0, len(request.user.myuser.friends())):
 				other_id = request.user.myuser.get_friends()[i]
-				print('我操', other_id)
 				friend = User.objects.filter(id=other_id)[0].myuser
-				movement_msg = str(friend.nickname) + '退出了活动'
+				movement_msg = str(request.user.myuser.get_nickname()) + '退出了活动'
 				friend.append_friend_movement(movement_msg)
 				friend.append_movement_name(str(obj.name))
 				friend.append_movement_link(str(request.get_full_path()))
+		else:
+			index = request.POST.get('act_id', '')
+			score = request.POST.get('score', '')
+			content = request.POST.get('content', '')
+			request.user.myuser.create_comment(int(index), int(score), content)
 		fresh_path = request.get_full_path()
 		return HttpResponseRedirect(fresh_path)
 
@@ -991,20 +1064,15 @@ def check_act_msg(request):
         back_page = request.POST.get('back_page', '')
         return HttpResponseRedirect(back_page)
 
-#添加好友
-def request_for_friend(request):
-	return render(request, '??弹窗或新页面', {})
-
 def send_emails(email_from, email_to, title, content):
 	send_mail('wf', 'wf', "Louyk14@163.com", "Louyk14@163.com", fail_silently=False)
 
-def check_activity_status():
-	act_all = Activity.objects.all()
-
-	for index in range(0, len(act_all)):
-		if act_all[index].get_status() == 'finished':
+def check_activity_status(acts):
+	for index in range(0, len(acts)):
+		if acts[index].get_status() == 'finished':
 			continue
-		if timezone.now() > act_all[i].get_start_date() and timezone.now() < act_all[i].get_end_date():
-			act_all[index].set_status('ongoing')
-		elif timezone.now() > act_all[i].get_end_date():
-			act_all[index].set_status('finished')
+		if timezone.now() > acts[index].get_start_date() and timezone.now() < acts[index].get_end_date():
+			acts[index].set_status('ongoing')
+		elif timezone.now() > acts[index].get_end_date():
+			acts[index].set_status('finished')
+	return acts

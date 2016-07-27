@@ -160,8 +160,11 @@
 
 		{% for data in new_data %}	
 			<p>{{ data.0 }}</p>
-		    <a href="{{ data.2 }}">{{ data.1 }}</a> 
+			<a href="{{ data.2 }}">{{ data.1 }}</a> 
 		{% endfor %}
+		<form method='post'>
+			<input type='submit' name='submit' value='全部忽略'>
+		</form>
 		
 		{% for r in result %}
 		    <h2>
@@ -173,7 +176,17 @@
 		{% endfor %}
  -->
 		<a href="{{ no_param_path }}create_activity/">创建活动</a>
+		
+		{% if is_first_page == False %}
+		<a href="{{ first_page_url }}">首页</a>
+		<a href="{{ front_page_url }}">上一页</a>
+		{% endif %}
+
+		{% if is_last_page == False %}
 		<a href="{{ next_page_url }}">下一页</a>
+		{% endif %}
+
+		<p>当前第{{ current_page }}页</p>
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>

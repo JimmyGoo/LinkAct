@@ -158,7 +158,8 @@
 		    <form method='post'>
 		    	{% csrf_token %}
 		        <p>
-		      		<input type='text' name='request_id' value='{{ ask }}'>
+		      		<a href="{{ ask.1 }}">{{ ask.2 }}</a>
+		      		<input type='hidden' name='request_id' value='{{ask.0}}'>
 		      		<input type='text' value='请求加你为好友'>
 		        	<input type='submit' name='submit' class='' value='同意'>
 		        	<input type='submit' name='submit' value='拒绝'>
@@ -238,7 +239,16 @@
 		    </h2> -->
 		{% endfor %}
 
-	<!-- 	<a href="{{ next_page_url }}">下一页</a> -->
+		{% if is_first_page == False %}
+		<a href="{{ first_page_url }}">首页</a>
+		<a href="{{ front_page_url }}">上一页</a>
+		{% endif %}
+
+		{% if is_last_page == False %}
+		<a href="{{ next_page_url }}">下一页</a>
+		{% endif %}
+
+		<p>当前第{{ current_page }}页</p>
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>

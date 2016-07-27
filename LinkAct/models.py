@@ -556,7 +556,7 @@ class MyUser(models.Model):
 				else:
 					i += 1
 		if 'create_time' in reference:
-			if not isinstance(reference['create_time'], date):
+			if not isinstance(reference['create_time'], datetime):
 				return []
 			i = 0
 			while(i < len(results)):
@@ -565,7 +565,7 @@ class MyUser(models.Model):
 				else:
 					i += 1
 		if 'start_date' in reference:
-			if not isinstance(reference['start_date'], date):
+			if not isinstance(reference['start_date'], datetime):
 				return []
 			i = 0
 			while(i < len(results)):
@@ -574,7 +574,7 @@ class MyUser(models.Model):
 				else:
 					i += 1
 		if 'end_date' in reference:
-			if not isinstance(reference['end_date'], date):
+			if not isinstance(reference['end_date'], datetime):
 				return []
 			i = 0
 			while(i < len(results)):
@@ -693,8 +693,20 @@ class MyUser(models.Model):
 		for x in results:
 			result.append(x[0])
 		return result
-
-
+	def create_comment(self, act_id, score, content):
+		acts = Activity.objects.filter(id = act_id)
+		if len(acts) == 0:
+			return False
+		else:
+			act = acts[0]
+			a = Comment()
+			a.score = score
+			a.content = content
+			a.comment_time = datetime.now()
+			a.commenter = self.get_id()
+			a.save()
+			act.append_comments(a.id)
+			return True
 
 
 	def __str__(self):
@@ -716,13 +728,15 @@ class Activity(models.Model):
 	#发起时间
 	create_time = models.DateTimeField(default = datetime.now)
 	#开始时间
-	start_date = models.DateField(default = date.today)
+	start_date = models.DateTimeField(default = datetime.now)
 	#结束时间
-	end_date = models.DateField(default = date.today)
+	end_date = models.DateTimeField(default = datetime.now)
 	#发起介绍
 	introduction = models.CharField(max_length = 500, default = '[]')
 	#点赞人
 	supporters = models.CharField(max_length = 300, default = '[]')
+	#评论
+	comments = models.CharField(max_length = 300, default = '[]')
 
 	#get attribute
 	def get_name(self):
@@ -751,6 +765,19 @@ class Activity(models.Model):
 		return self.end_date
 	def get_introduction(self):
 		return self.introduction
+	def get_comments(self):
+		if isinstance(self.comments, str):
+			return json.loads(self.comments)
+		return self.comments
+	def get_comments_content(self):
+		if isinstance(self.comments, str):
+			temp = json.loads(self.comments)
+		else:
+			temp = self.comments
+		result = []
+		for index in range(0, len(temp)):
+			result.append(Comment.objects.get(id=temp[index]))
+		return result
 	def get_supporters(self):
 		if isinstance(self.supporters, str):
 			return json.loads(self.supporters)
@@ -822,10 +849,10 @@ class Activity(models.Model):
 		self.save()
 		return False
 	def update_start_date(self):
-		self.start_date = date.today
+		self.start_date = datetime.now()
 		self.save()
 	def update_end_date(self):
-		self.end_date = date.today
+		self.end_date = datetime.now()
 		self.save()
 	def set_introduction(self, introduction):
 		self.introduction = introduction
@@ -856,6 +883,32 @@ class Activity(models.Model):
 		self.supporters = json.dumps(s)
 		self.save()
 		return False
+	def set_comments(self, comments):
+		if isinstance(comments, str):
+			self.comments = comments
+		else:
+			self.comments = json.dumps(comments)
+		self.save()
+	def append_comments(self, comment_id):
+		s = self.get_comments()
+		if comment_id not in s:
+			s.append(comment_id)
+			self.comments = json.dumps(s)
+			self.save()
+			return True
+		self.comments = json.dumps(s)
+		self.save()
+		return False
+	def remove_comments(self, comment_id):
+		s = self.get_comments()
+		if comment_id in s:
+			s.remove(comment_id)
+			self.comments = json.dumps(s)
+			self.save()
+			return True
+		self.comments = json.dumps(s)
+		self.save()
+		return False
 	def get_theme_content(self):
 		results = []
 		for item in self.get_theme():
@@ -863,7 +916,7 @@ class Activity(models.Model):
 		return ','.join(results)
 
 	def __str__(self):
-		return self.get_theme_content()
+		return self.get_name()
 
 class Interest(models.Model):
 	content = models.CharField(max_length = 20, default = '')
@@ -890,6 +943,7 @@ class Theme(models.Model):
 		return self.content
 
 class Comment(models.Model):
+	comment_time = models.DateTimeField(default = datetime.now)
 	commenter = models.IntegerField()
 	score = models.IntegerField()
 	content = models.CharField(max_length = 300, default = '')
@@ -900,8 +954,12 @@ class Comment(models.Model):
 		return self.id
 	def get_commenter(self):
 		return self.commenter
+	def get_commenter_name(self):
+		return MyUser.objects.get(id = self.commenter).get_nickname()
 	def get_score(self):
 		return self.score
+	def get_comment_time(self):
+		return self.comment_time
 	#set
 	def set_content(self, content):
 		self.content = content
