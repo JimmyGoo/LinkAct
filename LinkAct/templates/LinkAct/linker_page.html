@@ -28,9 +28,9 @@
 
     		{% if has_login %}
     		{% if has_own_avatar %}
-    		<img id='user_img_id' src='{{ img.img.url }}' class='img-circle img-responsive'/>
+    		<img id='user_img_id' src='{{ img.img.url }}'/>
     		{% else %}
-    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}" class='img-circle img-responsive'/>
+    		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
     		{% endif %}
     		{% endif %}
 
@@ -44,7 +44,7 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation" class='active'><a href="{{url1}}?search_class=nickname&search_content=nickname&search_order=1&search_page=1">领客</a></li>
+					  	<li role="presentation" class='active'><a href="{{ url1 }}?search_class=&search_content=&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
@@ -103,35 +103,38 @@
 			<p id="subtitle">make the life better</p>
 		</div>
 
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-		            <div class="input-group" id="adv-search">
-		                <input type="text" class="form-control" placeholder="搜索其他领客" />
-		                <div class="input-group-btn">
-		                    <div class="btn-group" role="group">
-		                        <div id="search_dropdown"class="dropdown dropdown-lg">
-		                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
-		                            <div class="dropdown-menu dropdown-menu-right" role="menu">
-		                                <form class="form-horizontal" role="form">
-			                                <div class="form-group">
-			                                    <label for="filter">搜索条件</label>
-			                                    <select class="form-control">
-			                                        <option value="" selected>全部</option>
-			                                        <option value="nickname">昵称</option>
-			                      
-			                                    </select>
-			                                </div>
-			                                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-		                                </form>
-		                            </div>
-		                        </div>
-		                        <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-		                    </div>
-		                </div>
-		            </div>
+		<div class="container" style="padding-top:30px;padding-bottom:30px;">
+		    <div class="row">    
+		        <div class="col-md-12">
+				    <form method="POST" enctype="multipart/form-data">
+				    	{% csrf_token %}
+		            	<div class="input-group" id="search_group">
+			                <input type="hidden" name="search_class" id="search_class" 
+			                value="{{search_class_pass_value}}">       
+			                <input type="text" class="form-control" name="search_content" placeholder="发现其他领客"
+			                value="{{search_content_pass_text}}">
+			                 <div class="input-group-btn search-panel">
+			                    <button type="button" class="btn btn-default dropdown-toggle search-btn-right" data-toggle="dropdown">
+			                        <span id="search_class_text" name="search_class_text">
+			                        	{{search_class_pass_text}}</span> <span class="caret"></span>
+			                    </button>
+			                    
+			                    <ul class="dropdown-menu" role="menu">
+			                      	
+			                      	<li><a value='username'>按照用户搜索</a></li>
+			                      	<li><a value='nickname'>按照昵称搜索</a></li>
+			                      	<li><a value='city'>按照城市搜索</a></li>			                     
+			                      	<li class="divider"></li>
+			                      	<li><a value='all'>无筛选条件</a></li>
+			                    </ul>
+			                </div>
+			                <span class="input-group-btn">
+			                    <button class="btn btn-default" type="submit" name="submit" value="search_submit"><span class="glyphicon glyphicon-search"></span></button>
+			                </span>
+		            	</div>
+		            </form>
 		        </div>
-		    </div>
+			</div>
 		</div>
 		
 	<!-- 	<form method="POST" enctype="multipart/form-data">
@@ -174,25 +177,28 @@
 		                    <h2>{{result_user.other_user.user.username}}</h2>
 		                    
 		                    <h3>{{result_user.other_user.nickname}}</h3>
-							{% if result_user.other_user.myuser.city != ''%}
+							{% if result_user.other_user.city == ''%}
 							<p><strong>城市: </strong>尚未填写</p>
 							{% else %}
-		                    <p><strong>城市: </strong>{{result_user.other_user.myuser.city}}</p>
+		                    <p><strong>城市: </strong>{{result_user.other_user.city}}</p>
 		                    {% endif %}
 		                    <p><strong>爱好: </strong>
-		                        <span class="tags">html5</span> 
-		                        <span class="tags">css3</span>
-		                        <span class="tags">jquery</span>
-		                        <span class="tags">bootstrap3</span>
+		                    	{% if result_user.has_interest == False%}
+		                    	尚未填写
+		                    	{% else %}
+		                    	{%for one_interest in result_user.other_interests%}
+		                    	<span class="tags">{{one_interest}}</span>
+		                    	{% endfor %}
+		                    	{%endif%}
+		                     
 		                    </p>
 		                </div>             
 		                <div class="col-xs-12 col-sm-4 text-center">
 		                    <figure>
 		                       {% if result_user.other_has_own_avartar == True%}
-				                <img id="other_user_img" src="{{result_user.other_img.img.url}}" alt="{{result_user.other_user.user.username}}" title="{{result_user.other_user.user.username}}" class="img-responsive"
-				                />
+				                <img id="other_user_img" src="{{result_user.other_img.img.url}}" alt="{{result_user.other_user.user.username}}" title="{{result_user.other_user.user.username}}"/>
 				                {% else %}
-				                <img id="other_user_img" src="{%static "img/default_avatar.jpg" %}" alt="{{result_user.other_user.user.username}}" title="{{result_user.other_user.user.username}}"class="img-responsive"/>
+				                <img id="other_user_img" src="{%static "img/default_avatar.jpg" %}" alt="{{result_user.other_user.user.username}}" title="{{result_user.other_user.user.username}}"/>
 				                {% endif %}
 		                        
 		                    </figure>
@@ -254,6 +260,18 @@
 	<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 	<script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(e){
+		    $('.search-panel .dropdown-menu').find('a').click(function(e) {
+				e.preventDefault();
+				
+				var concept = $(this).text();
+				var value = $(this).attr('value');
 
+				$('.search-panel span#search_class_text').text(concept);
+				$('#search_class').attr('value', value);
+			});
+		});
+	</script>
 	
 </html>

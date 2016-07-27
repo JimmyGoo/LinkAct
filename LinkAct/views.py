@@ -105,6 +105,16 @@ base_url = 'http://127.0.0.1:8000'
 #             return render(request, 'LinkAct/login.html', {'form':form})
 	
 #     return render(request, 'LinkAct/user_manage.html', {})
+
+#搜索对#
+search_value_string = [
+	{"value":"nickname", "string":"按照昵称搜索"},
+	{"value":"all","string":"无筛选条件"},
+	{"value":"username","string":"按照用户搜索"},
+	{"value":"city","string":"按照城市搜索"},
+]
+
+
 def start_page_show(request):
 	#-----------登录判定----------#
 	has_login = False
@@ -578,7 +588,6 @@ def show_people(request):
 
 		my_url = request.path
 
-
 		interest_msg = ""
 		for s in temp:
 			if len(interest_msg) != 0:
@@ -586,6 +595,8 @@ def show_people(request):
 			interest_msg += Interest.objects.get(id = int(s)).get_content()
 		if interest_msg == "":
 			interest_msg = "未填写"	
+
+
 		if has_login:
 			imgs = Img.objects.filter(id = request.user.myuser.get_head())
 			print(imgs)
@@ -701,11 +712,17 @@ def search_people(request):
 
 			answer = []
 
+
 			if search_order == '1':
 				answer = MyUser.objects.all().order_by('id')
 
-			elif search_class == 'nickname':
-				answer = MyUser.objects.filter(nickname=search_content)
+			else:
+				print('fuck')
+				print(search_class)
+				answer = user.myuser.user_filter(search_class, search_content)
+				print(answer)
+
+
 
 
 			startPos = (int(search_page) - 1) * 10
@@ -713,7 +730,7 @@ def search_people(request):
 			if endPos >= len(answer):
 				endPos = len(answer)
 
-			if answer[startPos].user.username == request.user.username:
+			if len(answer) > 0 and answer[startPos].user.username == request.user.username:
 				result = answer[startPos + 1:endPos]
 			else:
 				result = answer[startPos:endPos]
@@ -727,17 +744,39 @@ def search_people(request):
 
 			#整合用户#
 			pass_data = []
+		
 			for show_user in result:
+				other_has_own_avatar = False
 				other_imgs = Img.objects.filter(id = show_user.get_head())
 				if len(other_imgs) != 0:
 					other_img = other_imgs[0]
-					has_own_avatar = True
+					other_has_own_avatar = True
 				else:
-					has_own_avatar = False
+					
 					other_img = ''
 
-				pass_data.append({'other_user':show_user, 'other_img':other_img, 'other_has_own_avartar':has_own_avatar})
+				other_interests_num = show_user.get_interests()
+				print(other_interests_num)
+				other_interests = []
+				has_interest = True
+				if other_interests_num != []:
+					for num in other_interests_num:
+						print(num)
+						other_interests.append(Interest.objects.get(id = int(num)).get_content())
+				if other_interests == []:
+					has_interest = False
+				pass_data.append({'other_user':show_user, 'other_img':other_img, 'other_has_own_avartar':other_has_own_avatar,
+					'other_interests':other_interests, 'has_interest':has_interest})
 
+			search_class_pass_text = '无条件筛选'
+			search_class_pass_value = 'all'
+			for i in search_value_string:
+				if i['value'] == search_class:
+					search_class_pass_text = i['string']
+					search_class_pass_value = i['value']
+					print(search_class_pass_value)
+					print(search_class_pass_text)
+					break;
 
 			if has_own_avatar:
 				return render(request, 'LinkAct/linker_page.html', 
@@ -750,7 +789,10 @@ def search_people(request):
 							'current_url':temp_url, 
 							'next_page_url':next_page_url, 
 							'requests':request.user.myuser.get_waiting(),
-							'user_name': user_name
+							'user_name': user_name,
+							'search_class_pass_value':search_class_pass_value,
+							'search_class_pass_text':search_class_pass_text,
+							'search_content_pass_text':search_content,
 						})
 			else:
 				return render(request, 'LinkAct/linker_page.html', 
@@ -762,15 +804,26 @@ def search_people(request):
 							'current_url':temp_url, 
 							'next_page_url':next_page_url, 
 							'requests':request.user.myuser.get_waiting(),
-							'user_name': user_name
+							'user_name': user_name,
+							'search_class_pass_value':search_class_pass_value,
+							'search_class_pass_text':search_class_pass_text,
+							'search_content_pass_text':search_content_pass_text,
 						})   
 
 		elif request.method == 'POST':
 			params = request.POST
+
 			if request.POST.get('submit') == 'search_submit':
+
 				aim_url = request.path
-				aim_url = aim_url + "?search_class=" + params.get('search_class', '') + "&search_content=" + params.get('search_content', '') + "&search_order=0&search_page=1" 
+
+				if params.get('search_content', '') == '':
+					aim_url = aim_url + "?search_class=" + params.get('search_class', '') + "&search_content=" + params.get('search_content', '') + "&search_order=1&search_page=1" 
+				else:
+					aim_url = aim_url + "?search_class=" + params.get('search_class', '') + "&search_content=" + params.get('search_content', '') + "&search_order=0&search_page=1" 
 				return HttpResponseRedirect(aim_url)
+
+
 			else:
 				if request.POST.get('submit') == '同意':
 					agreed_id = int(request.POST.get('request_id'))

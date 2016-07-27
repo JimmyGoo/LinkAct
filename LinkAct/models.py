@@ -40,9 +40,9 @@ class MyUser(models.Model):
 	interests = models.CharField(max_length = 300, default = '[]')
 	#电话号码
 	phone_number = models.CharField(max_length = 20, default = '')
-    #待处理好友请求         #new_pos
+	#待处理好友请求         #new_pos
 	waiting_deal_friends = models.CharField(max_length = 300, default = '[]')
-     #好友列表
+	 #好友列表
 
 	friends = models.CharField(max_length = 300, default = '[]')
 
@@ -437,24 +437,24 @@ class MyUser(models.Model):
 		self.user.email_user(subject, message, from_email, kwargs)
 
 	def create_user(self, usernames, passwords, email):
-                flag = True
-                temp = User.objects.all()
-                for item in temp:
-                        if item.username == usernames:
-                                flag = False
-                                break
-                if flag:
-                        u = User.objects.create_user(username=usernames, password=passwords, email = email)
-                        u.save()
-                        self.user = u
-                        self.nickname = ''
-                        self.birthday = date(1970, 1, 1)
-                        self.city = ''
-                        self.interests = '[]'
-                        self.save()
-                        return True
-                else:
-                        return False
+				flag = True
+				temp = User.objects.all()
+				for item in temp:
+						if item.username == usernames:
+								flag = False
+								break
+				if flag:
+						u = User.objects.create_user(username=usernames, password=passwords, email = email)
+						u.save()
+						self.user = u
+						self.nickname = ''
+						self.birthday = date(1970, 1, 1)
+						self.city = ''
+						self.interests = '[]'
+						self.save()
+						return True
+				else:
+						return False
 	def delete_user(self):
 		a = self.user
 		a.delete()
@@ -592,94 +592,87 @@ class MyUser(models.Model):
 				else:
 					i += 1
 		return results
+	def str_similar(self, s, t):
+		result = 0
+		i = 0
+		while(i < len(t)):
+			j = 0
+			while(i + j < len(t) and j < len(s)):
+				if t[i + j] == s[j]:
+					j = j + 1
+				else:
+					if j > result:
+						result = j
+					break
+			i = i + 1
+		return result
 
 	#data是一个MyUser数组，在该数组中进行查找，同时符合reference中的各种属性的MyUser,
 	#reference中的属性不固定，例如：{'city':'重庆'}和{'city':'重庆', 'nickname': '偷心的鱼'}皆可,
 	#属性可选范围是MyUser和User的所有属性
-	def user_filter(self, reference):
+	def user_filter(self, style, reference):
 		results = []
 		for item in MyUser.objects.all():
-			results.append(item)
-		if 'username' in reference:
-			i = 0
-			while(i < len(results)):
-				if results[i].get_username() != reference['username']:
-					del results[i]
-				else:
-					i += 1
-		if 'id' in reference:
-			i = 0
-			while(i < len(results)):
-				if results[i].get_id() != reference['id']:
-					del results[i]
-				else:
-					i += 1
-		#birthday的值的类型是string，格式是'2016-07-21'
-		if 'birthday' in reference:
-			i = 0
-			while(i < len(results)):
-				if str(results[i].get_birthday()) != reference['birthday']:
-					del results[i]
-				else:
-					i += 1
-		if 'friends' in reference:
-			i = 0
-			while(i < len(results)):
-				temp = results[i].get_friends()
-				for x in reference['friends']:
-					if x not in temp:
-						del results[i]
-						i -= 1
-						break
-				i += 1
-		if 'website' in reference:
-			i = 0
-			while(i < len(results)):
-				if results[i].get_website() != reference['website']:
-					del results[i]
-				else:
-					i += 1
-		if 'email' in reference:
-			i = 0
-			while(i < len(results)):
-				if results[i].get_email() != reference['email']:
-					del results[i]
-				else:
-					i += 1
-		if 'nickname' in reference:
-			i = 0
-			while(i < len(results)):
-				if results[i].get_nickname() != reference['nickname']:
-					del results[i]
-				else:
-					i += 1
-		if 'city' in reference:
-			i = 0
-			while(i < len(results)):
-				if results[i].get_city() != reference['city']:
-					del results[i]
-				else:
-					i += 1
-		if 'gender' in reference:
-			i = 0
-			while(i < len(results)):
-				if results[i].get_gender() != reference['gender']:
-					del results[i]
-				else:
-					i += 1
-		if 'interests' in reference:
-			i = 0
-			while(i < len(results)):
-				temp = results[i].get_interests()
-				for x in reference['interests']:
-					if x not in temp:
-						del results[i]
-						i -= 1
-						break
-				i += 1
-		return results
+			results.append((item, 0))
+		if style == 'username':
+			print('fuck1')
+			print(reference)
+			for x in results:
+				temp = self.str_similar(reference, x[0].get_username())				
+				if temp >  x[1]:
+					x[1] = temp
+					
+		elif style == 'id':
+			for x in results:
 
-		
+				if reference == x[0].get_id():
+					x[1] = 1
+		elif style == 'birthday':
+			for x in results:
+				temp = self.str_similar(reference, str(x[0].get_birthday()))
+				if temp >  x[1]:
+					x[1] = temp
+		elif style == 'friends':
+			for x in results:
+				temp = [var for var in x.get_friends() if var in reference]
+				if len(temp) >  x[1]:
+					x[1] = len(temp)
+		elif style == 'email':
+			for x in results:
+				temp = self.str_similar(reference, x[0].get_email())
+				if temp >  x[1]:
+					x[1] = temp
+		elif style == 'nickname':
+			for x in results:
+				temp = self.str_similar(reference, x[0].get_nickname())
+				if temp >  x[1]:
+					x[1] = temp
+		elif style == 'city':
+			for x in results:
+				temp = self.str_similar(reference, x[0].get_city())
+				if temp >  x[1]:
+					x[1] = temp
+		elif style == 'gender':
+			for x in results:
+				temp = self.str_similar(reference, x[0].get_gender())
+				if temp >  x[1]:
+					x[1] = temp
+		elif style == 'interests':
+			for x in results:
+				temp = [var for var in x.get_interests() if var in reference]
+				if len(temp) >  x[1]:
+					x[1] = len(temp)
+		i = 0
+		while(i < len(results)):
+			if results[i][1] == 0:
+				del results[i]
+			else:
+				i += 1
+		results = sorted(results, key = lambda asd:asd[1], reverse = True)
+		result = []
+		for x in results:
+			result.append(x[0])
+		return result
 
 
 
