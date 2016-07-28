@@ -352,21 +352,6 @@
 										</div>
 									</div>
 								</div>
-
-					           
-			                    	<!-- <span class="fa fa-comment li-title">创建评论</span>
-			                    	<div class="row">
-									    <div class="col-lg-5" style="padding-left:37px;">
-						              		<form method='post'>
-												{% csrf_token %}
-												<p>{{ form.as_p }}</p>
-												<button type='submit' name='submit' value='提交评论' class='btn btn-success'>提交评论</button>
-												<input type='hidden' name='act_id' value='{{ act_id }}'>
-											</form>
-
-											
-										</div>
-									</div> -->
 		                    </li>
 
 		                    <li>
@@ -376,7 +361,7 @@
 								    <div class="col-lg-5" style="padding-left:37px;">
 
 								    	<p>作为创建者，您可以修改活动信息</p>
-								    	<button class='btn btn-primary'><a style='color:white;'href="{{ this_page_no_para }}check_act/?id={{ act_id }}&back_page={{ this_page }}">修改活动信息</a></button>
+								    	<a class='btn btn-primary' style='color:white;'href="{{ this_page_no_para }}check_act/?id={{ act_id }}&back_page={{ this_page }}">修改活动信息</a>
 								    </div>
 								</div>
 								{% endif %}
@@ -398,7 +383,7 @@
 						<input type='hidden' name='act_id' value='{{ act_id }}'>
 					</form>
 					<div style = 'text-align:center'>
-						<label class = 'btn btn-primary'><a style='color:white; float:center;' href="{{ last_page }}">返回</a></label>
+						<a class = 'btn btn-primary'style='color:white; float:center;' href="{{ last_page }}">返回</a>
 					</div>
 		        </div>
 			</div>

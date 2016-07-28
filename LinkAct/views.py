@@ -428,7 +428,7 @@ def create_act(request):
 				
 		request.user.myuser.create_activity(name, theme, city_string, start_date, end_date, introduction, act_img_id)
 		 
-		return HttpResponseRedirect('../?search_class=create_time&search_content=None&search_order=1&search_page=1')
+		return HttpResponseRedirect('../?search_class=create_time&search_content=&search_order=1&search_page=1')
 	else:
 
 		if request.user.myuser.city != '':

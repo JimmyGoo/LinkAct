@@ -57,7 +57,7 @@
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation" class='active'><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation" class='active'><a href="{{ url2 }}?search_class=create_time&search_content=&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -184,7 +184,7 @@
 		</div>
 
 		<div style='text-align:center;padding-bottom: 30px;'>
-			<a class='likeabutton' style='font-size:20px;'href="{{ no_param_path }}create_activity/">创建活动</a>
+			<a class='btn btn-primary' style='font-size:20px;'href="{{ no_param_path }}create_activity/">创建活动</a>
 		</div>
 		<div class="container">
 			<div class="row">
