@@ -52,7 +52,7 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation"><a href="{{ url1 }}?search_class=&search_content=&search_order=1&search_page=1">领客</a></li>
+					  	<li role="presentation"><a href="{{ url1 }}?search_class=create_time&search_content=&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
@@ -247,5 +247,22 @@
 			</div>
 		</footer>
 	</body>
-	
+	<!-- 
+	<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+	<script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>-->
+	<script type="text/javascript">
+		$(document).ready(function(e){
+		    $('.search-panel .dropdown-menu').find('a').click(function(e) {
+				e.preventDefault();
+				
+				var concept = $(this).text();
+				var value = $(this).attr('value');
+
+				$('.search-panel span#search_class_text').text(concept);
+				$('#search_class').attr('value', value);
+			});
+		});
+	</script>
 </html>

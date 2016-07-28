@@ -112,6 +112,12 @@ search_value_string = [
 	{"value":"all","string":"无筛选条件"},
 	{"value":"username","string":"按照用户搜索"},
 	{"value":"city","string":"按照城市搜索"},
+	{"value":"theme", "string":"按照主题搜索"},
+	{"value":"status","string":"按照状态搜索"},
+	{"value":"name","string":"按照名字搜索"},
+	{"value":"creator","string":"按照创建者搜索"},
+	{"value":"locale","string":"按照地点搜索"},
+	{"value":"introduction","string":"按照介绍搜索"},
 ]
 
 
@@ -381,28 +387,134 @@ def create_act(request):
 			})
 
 #修改活动信息，仅活动创建人能进入此页面，修改完成后用input按钮提交，用hidden的input标签传回id及last_page
+#def check_act_msg(request):
+#	print('妈蛋')
+#	has_login = False
+#	has_own_avatar = False
+#	if request.user.username == AnonymousUser.username:
+#		has_login = False
+#	else:
+#		has_login = True
+#		imgs = Img.objects.filter(id = user.myuser.get_head())
+#		if len(imgs) != 0:
+#			img = imgs[0]
+#			has_own_avatar = True
+#
+#
+#
+#	if request.method == 'GET':
+#		login_status = request.GET.get('user_login','-1')
+#		if login_status=='0':
+#			log_out(request)
+#			print('logout successfully')
+#		i = request.GET['id']
+#		last_page = request.GET['last_page']
+#		to_check_act = Activity.objects.get(id=i)
+#		
+#		form = ActForm()
+#		if has_own_avatar:
+#			return render(request, 'LinkAct/actShow.html', 
+#				{
+#					'form': form, 
+#					'act_obj':to_check_act, 
+#					'last_page':last_page, 
+#					'id':i,
+#					'has_own_avatar':has_own_avatar,
+#					'img': img,
+#					'has_login': has_login,
+#				})
+#		else:
+#			return render(request, 'LinkAct/actShow.html', 
+#				{
+#					'form': form, 
+#					'act_obj':to_check_act, 
+#					'last_page':last_page, 
+#					'id':i,
+#					'has_own_avatar':has_own_avatar,
+#					'has_login': has_login,
+#				})
+#	else:
+#		params = request.POST
+#		i = request.POST['id']
+#		last_page = request.POST['last_page']
+#		to_check_act = Activity.objects.get(id=i)
+#		to_check_act.set_locale(params.get('locale', ''))
+#		to_check_act.set_theme(params.get('theme', ''))
+#		to_check_act.update_start_date(params.get('start_date', ''))
+#		to_check_act.update_end_date(params.get('end_date', ''))
+#		to_check_act.set_introduction(params.get('introduction', ''))
+#
+#		return HttpResponseRedirect(last_page)
+
+#修改活动信息
 def check_act_msg(request):
-	if request.method == 'GET':
-		i = request.GET['id']
-		last_page = request.GET['last_page']
-		to_check_act = Activity.objects.get(id=i)
-		
-		form = ActForm()
-		
-		return render(request, 'LinkAct/actShow.html', {'form': form, 'act_obj':to_check_act, 'last_page':last_page, 'id':i})
+	print('妈蛋')
+	user = request.user
+	has_login = False
+	has_own_avatar = False
+	if request.user.username == AnonymousUser.username:
+		has_login = False
 	else:
-		params = request.POST
-		i = request.POST['id']
-		last_page = request.POST['last_page']
-		to_check_act = Activity.objects.get(id=i)
-		to_check_act.set_locale(params.get('locale', ''))
-		to_check_act.set_theme(params.get('theme', ''))
-		to_check_act.update_start_date(params.get('start_date', ''))
-		to_check_act.update_end_date(params.get('end_date', ''))
-		to_check_act.set_introduction(params.get('introduction', ''))
+		has_login = True
+		imgs = Img.objects.filter(id = user.myuser.get_head())
+		if len(imgs) != 0:
+			img = imgs[0]
+			has_own_avatar = True
 
-		return HttpResponseRedirect(last_page)
+	if request.method == 'GET':
+		login_status = request.GET.get('user_login','-1')
+		if login_status=='0':
+			log_out(request)
+			print('logout successfully')
 
+		index = request.GET['id']
+		back_page = request.GET['back_page'] + "&last_page=" + request.GET['last_page'] + "&search_content="+ str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
+
+		act = Activity.objects.get(id=index)
+
+		act_infomation = {}
+		act_infomation['act'] = act
+		act_infomation['creator'] = User.objects.get(id = act.get_creator()).myuser
+		temp_p_id = act.get_participants()
+		temp_p_myuser = []
+		for x in temp_p_id:
+			temp_p_myuser.append(User.objects.get(id = x).myuser)
+		act_infomation['participants'] = temp_p_myuser
+		temp_theme_id = act.get_theme()
+		temp_theme = []
+		for x in temp_theme_id:
+			temp_theme.append(Theme.objects.get(id = x))
+		act_infomation['theme'] = temp_theme
+		temp_p_id = act.get_supporters()
+		temp_p_myuser = []
+		for x in temp_p_id:
+			temp_p_myuser.append(User.objects.get(id = x).myuser)
+		act_infomation['supporters'] = temp_p_myuser
+
+		actForm = ActForm()
+		if has_own_avatar:
+			return render(request, 'LinkAct/check_act_msg.html', 
+				{
+					'form':actForm, 
+					'act_infomation':act_infomation, 
+					'back_page':back_page,
+					'has_own_avatar':has_own_avatar,
+					'img': img,
+					'has_login': has_login,
+				})
+		else:
+			return render(request, 'LinkAct/check_act_msg.html', 
+				{
+					'form':actForm, 
+					'act_infomation':act_infomation, 
+					'back_page':back_page,
+					'has_own_avatar':has_own_avatar,
+					'has_login': has_login,
+				})
+	elif request.method == 'POST':
+				#保存修改并发送邮件
+		back_page = request.POST.get('back_page', '')
+		return HttpResponseRedirect(back_page)
 #登录
 def log_in(request):
 
@@ -991,8 +1103,8 @@ def search_act(request):
 
 		#不同检索方式
 		else:
-			answer = request.user.myuser.activity_filter(Activity.objects.all(), search_class)
-
+			answer = request.user.myuser.activity_filter(search_class, search_content)
+		print("我在寒风里", search_class)
 		is_last_page = False
 		is_first_page = False
 
@@ -1040,6 +1152,17 @@ def search_act(request):
 
 		temp_url = request.get_full_path()
 		next_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(next_page)
+		
+		search_class_pass_text = '无条件筛选'
+		search_class_pass_value = 'all'
+		for i in search_value_string:
+			if i['value'] == search_class:
+				search_class_pass_text = i['string']
+				search_class_pass_value = i['value']
+				print(search_class_pass_value)
+				print(search_class_pass_text)
+				break;
+
 		if has_own_avatar:
 			return render(request, 'LinkAct/activities_page.html', 
 			{
@@ -1053,6 +1176,9 @@ def search_act(request):
 			 	'new_data':new_data,
 			 	'has_login':has_login,
 			 	'has_own_avatar':has_own_avatar,
+			 	'search_class_pass_text':search_class_pass_text,
+			 	'search_class_pass_value':search_class_pass_value,
+				'search_content_pass_text':search_content,
 		 	})
 		else:
 		 	return render(request, 'LinkAct/activities_page.html', 
@@ -1066,6 +1192,9 @@ def search_act(request):
 			 	'new_data':new_data,
 			 	'has_login':has_login,
 			 	'has_own_avatar':has_own_avatar,
+			 	'search_class_pass_text':search_class_pass_text,
+			 	'search_class_pass_value':search_class_pass_value,
+				'search_content_pass_text':search_content,
 		 	})
 	elif request.method == 'POST':
 		params = request.POST
@@ -1114,8 +1243,11 @@ def show_act(request):
 
 		comments = act_obj.get_comments_content()
 		comment_info = []
-		for x in comments:
-			comment_info.append((x.get_commenter_name(), x.get_score(), x.get_content(), x.get_comment_time()))
+		j = len(comments) - 1
+		while j >= 0:
+			comment_info.append((comments[j].get_commenter_name(), comments[j].get_score(), comments[j].get_content(), comments[j].get_comment_time()))
+			j -= 1
+			
 		print('mada', comment_info)
 		newCommentForm = CommentForm()
 
@@ -1186,21 +1318,7 @@ def show_act(request):
 		fresh_path = request.get_full_path()
 		return HttpResponseRedirect(fresh_path)
 
-#修改活动信息
-def check_act_msg(request):
-	if request.method == 'GET':
-		index = request.GET['id']
-		back_page = request.GET['back_page'] + "&last_page=" + request.GET['last_page'] + "&search_content="+ str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
 
-		act = Activity.objects.filter(id=index)
-
-		actForm = ActForm()
-
-		return render(request, 'LinkAct/check_act_msg.html', {'form':actForm, 'act':act, 'back_page':back_page})
-	elif request.method == 'POST':
-				#保存修改并发送邮件
-		back_page = request.POST.get('back_page', '')
-		return HttpResponseRedirect(back_page)
 
 def send_emails(email_from, email_to, title, content):
 	send_mail('wf', 'wf', "Louyk14@163.com", "Louyk14@163.com", fail_silently=False)
