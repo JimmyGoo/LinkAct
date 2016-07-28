@@ -17,6 +17,9 @@ $(document).ready(function() {
 		            case 'email' : 
 		            e.target.setCustomValidity("电子邮箱不能为空或者格式错误");
 		            break;
+		            case 'nickname' : 
+		            e.target.setCustomValidity("昵称不能为空");
+		            break;
 		        default : e.target.setCustomValidity("此处不能为空");
 		        break;
 

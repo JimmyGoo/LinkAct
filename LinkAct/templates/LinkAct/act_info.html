@@ -21,6 +21,8 @@
 		<link rel="stylesheet" type="text/css" href="{%static "css/navigation.css" %}">
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/profile.css"%}">
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{%static "css/act_info.css"%}">
 	
 	</head>
 	<body margin='0px'>
@@ -107,140 +109,188 @@
 	  		</div><!-- /.container-fluid -->
 		</nav>
 
-		<!-- {% if set_info%}
-		{% if form%}
-		<form method="post">
-		    {% csrf_token %}
-		    账号：<input type="label" name="username" value={{personal_msg.username}} readonly="readonly">
-		    昵称：<input type="text" name="nickname" value={{personal_msg.myuser.nickname}}>
-		    email：<input type="text" name="email" value={{personal_msg.email}}>
-		    城市：<input type="text" name="city" value={{personal_msg.myuser.city}}>
-		    爱好：<input type="text" name="interest" value={{interest_msg}} readonly="readonly">
-		    <input type="submit" value="提交" />
-		</form>
-		{% endif %}
-
-		{% else %}
-
-
-		{% endif %} -->
 		<div class="container">
-		    <div class="row profile">
-				<div class="col-md-3">
-					<div class="profile-sidebar">
-						<!-- SIDEBAR USERPIC -->
-						<div class="profile-userpic">
-					
-				    		{% if has_own_avatar%}
-				    		<img class="img-responsive" src={{ img.img.url }} />
-				    		{% else %}
-				    		<img class="img-responsive" src="{%static "img/default_avatar.jpg" %}"/>
-				    		{% endif %}
-				    	
-						</div>
-						
-						<div class="profile-usermenu">
-							<ul class="nav">
-								<li class="active">
-									<a href="#">
-									<i class="glyphicon glyphicon-home"></i>
-									活动信息 </a>
-								</li>
-								<li>
-									<a href="#">
-									<i class="glyphicon glyphicon-user"></i>
-									活动信息设置 </a>
-								</li>
-							</ul>
-						</div>
-						<!-- END MENU -->
-					</div>
-				</div>
-				<div class="col-md-9">
-		            <div class="profile-content" style="padding:0">
-						<div class="panel panel-info">
-			            	<div class="panel-heading">
-			              		<h3 class="panel-title">活动信息查看</h3>
-			            	</div>
-			            	<div class="panel-body">
-			              		<div class="row">
-			      
-			                		<div class=" col-md-9 col-lg-9 "> 
-			                  			<table class="table table-user-information">
-			                    			<tbody>
-						                      	<tr>
-						                        	<td>活动名字：</td>
-						                        	<td>{{ act_infomation.act.name }}</td>
-						                      	</tr>
-						                      	<tr>
-						                        	<td>活动状态：</td>
-						                        	<td>{{ act_infomation.act.status }}</td>
-						                      	</tr>
-						                      	<tr>
-						                        	<td>活动发起人：</td>
-						                        	<td>{{ act_infomation.creator.nickname }}</td>
-						                        <tr>
-						                        	<td>活动参与人：</td>
-						                        	<td>
-														{% for participant in act_infomation.participants %}
-														<a>{{ participant.nickname }}</a>
-														{% endfor %}
-						                        	</td>
-						                        	
-						                      	</tr>
-						                        <tr>
-						                        	<td>活动地点：</td>
-						                        	<td>{{ act_infomation.act.locale }}</td>
-						                      	</tr>
-						                      	<tr>
-						                        	<td>活动主题：</td>
-						                        	<td>
-						                        		{% for theme in act_infomation.theme %}
-														<a>{{ theme.content }}</a>
-														{% endfor %}
-													</td>
-						                      	</tr>
-						                      	<tr>
-						                        	<td>活动发起时间：</td>
-						                        	<td>{{ act_infomation.act.create_time }}</td>
-						                      	</tr>
-						                      	<tr>
-						                        	<td>活动开始时间：</td>
-						                        	<td>{{ act_infomation.act.start_date }}</td>
-						                      	</tr>
-						                      	<tr>
-						                        	<td>活动结束时间：</td>
-						                        	<td>{{ act_infomation.act.end_date }}</td>
-						                      	</tr>
-						                      	<tr>
-						                        	<td>活动介绍：</td>
-						                        	<td>{{ act_infomation.act.introduction }}</td>
-						                      	</tr>
-						                      	<tr>
-						                        	<td>活动点赞人：</td>
-						                        	<td>
-						                        		{% for supporter in act_infomation.supporters %}
-														<a>{{ supporter.nickname }}</a>
-														{% endfor %}
-						                        	</td>
-						                      	</tr>
-						                    </tbody>
-			                  			</table>
-			                  		</div>
+			<div class="row">
+				{%if act_infomation.act.status == "ongoing"%}
+				<div class="panel panel-success">
+                	<div class="panel-heading">
+	                  	<h3 class="panel-title">
+	                   
+	                    	正在进行中
+	                   		<small class="pull-right" style="font-size:15px">将于 {{ act_infomation.act.end_date|date:"Y年m月d日" }} 结束</small>
+	                   		
+	                  	</h3>
+                	</div>                
+              	</div>
+              	{% elif act_infomation.act.status == "created"%}
+              	<div class="panel panel-warning">
+                	<div class="panel-heading">
+	                  	<h3 class="panel-title">
+	                   
+	                    	尚未开始
+	                   		<small class="pull-right" style="font-size:15px">将于 {{ act_infomation.act.start_date|date:"Y年m月d日" }} 开始</small>
+	                   		
+	                  	</h3>
+                	</div>                
+              	</div>
+              	{% else %}
+              	<div class="panel panel-danger">
+                	<div class="panel-heading">
+	                  	<h3 class="panel-title">
+	                   
+	                    	已经结束
+	                   		<small class="pull-right" style="font-size:15px">已于 {{ act_infomation.act.end_date|date:"Y年m月d日" }} 结束</small>
+	                   		
+	                  	</h3>
+                	</div>                
+              	</div>
+              	{%endif%}
+				<div class="col-sm-4 col-md-4 act-details" style='padding-top:30px;margin-bottom:30px;'>
+		            <div class="act-image">
+		            	{% if act_has_show_img and act_img.img%}
+		                <img src="{{act_img.img.url}}" alt="{{act_infomation.act.name}}" title="{{act_infomation.act.name}}">
+		                {%else%}
+		               <img src="{%static "img/default_act_img.jpg" %}"/>
+		                {%endif%}
+		            </div>
+		            <div class="act-info-block">
+		                <div class="act-heading">
+		                    <h3>{{act_infomation.act.name}}</h3>
+		                    <span class="help-block">{{act_infomation.act.locale}}</span>
+		                </div>
+		                <ul class="navigation">
+		                    <li>
+		                       
+		                        <span class="glyphicon glyphicon-user li-title" >活动发起者:</span>
+		                        <div class="row">
+
+		                        
+								    <div class="col-lg-5">
+								        <div class="media">
+								            <a class="pull-left" href="{{url0}}personal_info/?id={{ act_infomation.creator.user.id }}&back_page={{this_page}}">
+								      			{% if creator_has_own_avatar == True%}
+								                <img class="media-object dp img-circle" src={{creator_img.img.url}} style="width: 100px;height:100px;">
+								                {% else %}
+								                 <img class="media-object dp img-circle" src="{%static "img/default_avatar.jpg" %}" style="width: 100px;height:100px;">
+								                {% endif %}
+								            </a>
+								            <div class="media-body">
+								                <h4 class="media-heading">{{act_infomation.creator.nickname}} <small> </small></h4>
+								                {% if act_infomation.creator.city == ''%}
+								                 <h5>地区:尚未填写</a></h5>
+								                 {% else %}
+								                 <h5>地区:{{act_infomation.creator.city}}</a></h5>
+								                 {% endif %}
+								                <hr style="margin:8px auto">
+								   
+		                    					{% if creator_has_interests == True%}
+		                    					{%for one_creator_interest in creator_interests %}
+						                    	<span class="tags">{{one_creator_interest}}</span>
+						                    	{% endfor %}
+						                    	{%endif%}
+								               
+								            </div>
+								        </div>
+
+								    </div>
+
+								    
+
 								</div>
-							</div>
-							<div class="panel-heading">
-			              		<h3 class="panel-title">历史评论</h3>
-			            	</div>
-			            	<div class="panel-body">
+		                    </li>
+		                    <li>
+		                       
+		                        <span class="glyphicon glyphicon-align-left li-title">活动信息</span>
+		                        <div class="row">
+
+		                        
+								    <div class="col-lg-5">
+								    	<div class="media" id='act_info_id'>
+								    		<hr/>
+              								<span class="glyphicon glyphicon-tasks">活动主题：</span>
+					                       
+			                        		{% for theme in act_infomation.theme %}
+											<span class="tags">{{ theme.content }}</span>
+											{% endfor %}
+									
+					                      	<hr/>
+				                        	<span class="glyphicon glyphicon-calendar">活动发起时间：</span>
+				                        	<p>{{ act_infomation.act.create_time|date:"Y年m月d日h时i分"  }}</p>
+				                       
+					                      	<hr/>
+				                        	<span class="glyphicon glyphicon-calendar">活动开始时间：</span>
+				                        	<p>{{ act_infomation.act.start_date|date:"Y年m月d日" }}</p>
+					                        <hr/>
+					                      	<span class="glyphicon glyphicon-calendar">活动结束时间：</span>
+				                        	<p>{{ act_infomation.act.end_date|date:"Y年m月d日" }}</p>
+
+					                        <hr/>
+				                        	<span class="glyphicon glyphicon-list-alt">活动介绍：</span>
+				                        	<p>{{ act_infomation.act.introduction }}</p>
+					                      
+				                        	<hr/>
+					                        <span class="glyphicon glyphicon-thumbs-up">活动点赞人：</span>
+			                        		{% for supporter in act_infomation.supporters %}
+											<p>{{ supporter.nickname }}</p>
+											{% endfor %}
+											<hr/>
+				                    	</div>
+				                    </div>
+				                </div>
+		                   	</li>
+		                    <li>
+		                        
+								  
+
+								    
+		                        <span class="fa fa-users li-title">活动参与者</span>
+		                         <div class="media" id='join_user'>
+						            <a class="pull-left" href="{{url0}}personal_info/?id={{ act_infomation.creator.user.id }}&back_page={{this_page}}">
+						      			{% if creator_has_own_avatar == True%}
+						                <img class="media-object dp img-circle join_user_head" src={{creator_img.img.url}} style="width: 100px;height:100px;">
+						                {% else %}
+						                 <img class="media-object dp img-circle join_user_head" src="{%static "img/default_avatar.jpg" %}" style="width: 100px;height:100px;">
+						                {% endif %}
+						            </a>
+						            <div class="media-body">
+						                <h4 class="media-heading">{{act_infomation.creator.nickname}} <small> </small></h4>
+						                {% if act_infomation.creator.city == ''%}
+						                 <h5>地区:尚未填写</a></h5>
+						                 {% else %}
+						                 <h5>地区:{{act_infomation.creator.city}}</a></h5>
+						                 {% endif %}         
+						            </div>
+						        </div>
+		                        {% for one_participant in participants_data %}
+								 <div class="media"i d='join_user'>
+						            <a class="pull-left" href="{{url0}}personal_info/?id={{ one_participant.user.user.id }}&back_page={{this_page}}">
+						      			{% if one_participant.participants_has_own_avatar == True%}
+						                <img class="media-object dp img-circle join_user_head" src={{one_participant.participants_img.img.url}} style="width: 100px;height:100px;">
+						                {% else %}
+						                 <img class="media-object dp img-circle join_user_head" src="{%static "img/default_avatar.jpg" %}" style="width: 100px;height:100px;">
+						                {% endif %}
+						            </a>
+						            <div class="media-body">
+						                <h4 class="media-heading">{{one_participant.user.nickname}} </h4>
+						                {% if one_participant.user.city == ''%}
+						                 <h5>地区:尚未填写</a></h5>
+						                 {% else %}
+						                 <h5>地区:{{one_participant.user.city}}</a></h5>
+						                 {% endif %}
+						            </div>
+						        </div>
+								{% endfor %}
+		                    </li>
+		                    <li>
+		                        
+		                        <span class="fa fa-comments li-title">评论</span>
+		                       <div class="panel-body">
 			              		<div class="row">
 			      					{% for comment in comment_info %}
 			      						<div class=" col-md-9 col-lg-9 "> 
 				                  			<table class="table table-user-information">
-				                    			<tbody>
-
-							                      	<tr>
-							                        	<td>评论人：</td>
+				                    				<tr>
+							                    		<td>评论人：</td>
 							                        	<td>{{ comment.0 }}</td>
 							                      	</tr>
 							                      	<tr>
@@ -253,7 +303,7 @@
 							                      	</tr>
 							                      	<tr>
 							                        	<td>评论时间：</td>
-							                        	<td>{{ comment.3 }}</td>
+							                        	<td>{{ comment.3|date:"Y年m月d日h时i分" }}</td>
 							                      	</tr>
 							                      	
 							                    </tbody>
@@ -265,48 +315,97 @@
 				                		
 								</div>
 							</div>
-							<div class="panel-heading">
-			              		<h3 class="panel-title">评论</h3>
-			              		<form method='post'>
-									{% csrf_token %}
-									<p>创建新评论：{{ form.as_p }}</p>
-									<input type='submit' name='submit' value='提交评论'>
-									<input type='hidden' name='act_id' value='{{ act_id }}'>
-								</form>
+							
 
-								{% if isCreator == True %}
-									<a href="{{ this_page_no_para }}check_act/?id={{ act_id }}&back_page={{ this_page }}">修改活动信息</a>
+		                    </li>
+
+		                    <li>
+		                    	<span class="fa fa-comment li-title">创建评论</span>
+		                    	
+					            <div class="container">
+									<div class="row" style="margin-top:40px;">
+										<div class="col-md-6">
+								    	<div class="well well-sm">
+								            <div class="text-right">
+								                <a class="btn btn-success btn-green" href="#reviews-anchor" id="open-review-box" style='padding:5px'>点击打开评论</a>
+								            </div>
+								        
+								            <div class="row" id="post-review-box" style="display:none;">
+								                <div class="col-md-12">
+								                    <form accept-charset="UTF-8" method="post">
+								                    	{% csrf_token %}
+								                        <input id="ratings-hidden" name="score" type="hidden" >
+								                        <input type='hidden' name='act_id' value='{{ act_id }}'> 
+								                        <textarea class="form-control animated" cols="50" id="new-review" name="user_comment" placeholder="请输入评论" rows="5"></textarea>
+								        
+								                        <div class="text-right">
+								                            <div class="stars starrr" data-rating="0"></div>
+								                            <a class="btn btn-danger btn-sm" href="#" id="close-review-box" style="display:none;padding:5px;">
+								                            <span class="glyphicon glyphicon-remove"></span>取消</a>
+								                            <button class="btn btn-success btn-lg" type="submit" value='提交评论' name='submit' style='padding:5px'>提交评论</button>
+								                        </div>
+								                    </form>
+								                </div>
+								            </div>
+								        </div> 
+								         
+										</div>
+									</div>
+								</div>
+
+					           
+			                    	<!-- <span class="fa fa-comment li-title">创建评论</span>
+			                    	<div class="row">
+									    <div class="col-lg-5" style="padding-left:37px;">
+						              		<form method='post'>
+												{% csrf_token %}
+												<p>{{ form.as_p }}</p>
+												<button type='submit' name='submit' value='提交评论' class='btn btn-success'>提交评论</button>
+												<input type='hidden' name='act_id' value='{{ act_id }}'>
+											</form>
+
+											
+										</div>
+									</div> -->
+		                    </li>
+
+		                    <li>
+		                    	{% if isCreator == True %}
+		                    	<span class="fa fa-info li-title">修改活动</span>
+		                    	<div class="row">
+								    <div class="col-lg-5" style="padding-left:37px;">
+
+								    	<p>作为创建者，您可以修改活动信息</p>
+								    	<button class='btn btn-primary'><a style='color:white;'href="{{ this_page_no_para }}check_act/?id={{ act_id }}&back_page={{ this_page }}">修改活动信息</a></button>
+								    </div>
+								</div>
 								{% endif %}
-
-								<form method='post'>
-									{% csrf_token %}
-
-									{% if isParticipant == False %}
-									<input type='submit' name='submit' value='参加'>
-									{% endif %}
-
-									{% if isParticipant == True %}
-									<input type='submit' name='submit' value='退出'>
-									{% endif %}
-									<input type='hidden' name='act_id' value='{{ act_id }}'>
-								</form>
-
-								<a href="{{ last_page }}">返回</a>
-			            	</div>
-						</div>
+		                    </li>
+		                </ul>
+		                
 		            </div>
-				</div>
+		            
+			
+		            <form method='post' style="text-align:center;">
+						{% csrf_token %}
+						{% if isParticipant == False %}
+						<button type="submit" id="join_btn" name='submit' value='参加' class="btn btn-success"><span class="glyphicon glyphicon-user"></span>参加活动</button>
+						{% endif %}
+						{% if isParticipant == True %}
+						<button type="submit" id="exit_btn" name='submit' value='退出' class="btn btn-danger">
+							 <span class="fa fa-arrow-right"></span>退出活动</button>
+						{% endif %}
+						<input type='hidden' name='act_id' value='{{ act_id }}'>
+					</form>
+					<div style = 'text-align:center'>
+						<label class = 'btn btn-primary'><a style='color:white; float:center;' href="{{ last_page }}">返回</a></label>
+					</div>
+		        </div>
 			</div>
-		</div>
-		<br>
-		<br>
-		
-		
-		
-								
-
+		</div>							
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
+				<hr/>
 				<p>由古志诚、向首兴、楼昀恺设计以及建造的网站</p>
 				<p>感谢github上开源的bootstrap框架以及django框架</p>
 				<p>若有建议以及意见，请不拘束地联系我们</p>
@@ -316,5 +415,7 @@
 			</div>
 		</footer>
 	</body>
+	{% load staticfiles %}
+	<script src="{%static "js/comment.js" %}"></script>
 
 </html>

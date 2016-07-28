@@ -115,7 +115,7 @@
 				<fieldset>
 
 				<!-- Form Name -->
-				<legend>基本信息</legend>
+				<legend>基本信息(必填)</legend>
 
 				<!-- Text input-->
 				<div class="form-group">
@@ -181,7 +181,7 @@
 				</div>
 
 
-
+				<legend>详细信息(选填)</legend>
 			
 				<!-- File Button --> 
 				<div class="form-group">
@@ -203,12 +203,18 @@
 				  <label class="col-md-4 control-label" for="create_btn"></label>
 				  <div class="col-md-8">
 				    <button type="submit" id="create_btn" name="create_btn" value='create' class="btn btn-success">创建</button>
-				    <button id="cancel_btn" name="cancel_btn" href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1" class="btn btn-danger">取消</button>
+				   
 				  </div>
 				</div>
 
+				
 			</fieldset>
 			</form>
+			<div class="form-group">
+				 <div class="col-md-8">
+					<button id="cancel_btn" name="cancel_btn" class="btn btn-danger"><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1" style="text_decoration:none; color:white;">取消</a></button>
+				</div>
+			</div>
 		</div>
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>

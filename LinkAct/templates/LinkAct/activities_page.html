@@ -183,7 +183,9 @@
 			</div>
 		</div>
 
-
+		<div style='text-align:center;padding-bottom: 30px;'>
+			<a class='likeabutton' style='font-size:20px;'href="{{ no_param_path }}create_activity/">创建活动</a>
+		</div>
 		<div class="container">
 			<div class="row">
 				<div class="[ col-xs-12 col-sm-offset-2 col-sm-8 ]">
@@ -203,18 +205,18 @@
 							{% endif %}
 							<div class="info">
 								<h2 class="title">{{show_act.act.name}}</h2>
-								<p class="desc">{{show_act.act.locale}}</p>
-								<p class="desc">{{show_act.act.end_date}}</p>
-								<p class="desc">{{show_act.act.introduction}}</p>
-								<a href="../act_info/?id={{ show_act.act.id }}&last_page={{ current_url }}">详情</a>
+								<p class="desc">活动地点:{{show_act.act.locale}}</p>
+								<p class="desc">活动结束时间:{{show_act.act.end_date}}</p>
+							
+								<p class="desc">活动简介:{{show_act.act.introduction}}</p>
+								
 							</div>
-							<!-- <div class="social">
+							<div class="social">
 								<ul>
-									<li class="facebook" style="width:33%;"><a href="#facebook"><span class="fa fa-facebook"></span></a></li>
-									<li class="twitter" style="width:34%;"><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
-									<li class="google-plus" style="width:33%;"><a href="#google-plus"><span class="fa fa-google-plus"></span></a></li>
+									<li class="arrow"><a href="../act_info/?id={{ show_act.act.id }}&last_page={{ current_url }}">
+										 <span class="fa fa-arrow-right"></span></a></li>
 								</ul>
-							</div> -->
+							</div>
 						</li>
 						{% endfor %}
 					</ul>
@@ -222,18 +224,22 @@
 			</div>
 		</div>
 
-		<a href="{{ no_param_path }}create_activity/">创建活动</a>
 		
-		{% if is_first_page == False %}
-		<a href="{{ first_page_url }}">首页</a>
-		<a href="{{ front_page_url }}">上一页</a>
-		{% endif %}
+		<div style = 'text-align:center'>
+			{% if is_first_page == False %}
+			<a href="{{ first_page_url }}">首页</a>
+			<a href="{{ front_page_url }}">上一页</a>
 
-		{% if is_last_page == False %}
-		<a href="{{ next_page_url }}">下一页</a>
-		{% endif %}
+			{% endif %}
 
-		<p>当前第{{ current_page }}页</p>
+			{% if is_last_page == False %}
+			<a href="{{ next_page_url }}">下一页</a>
+			<p>当前第{{ current_page }}页</p>
+			{% else %}
+			<p>当前第{{ current_page }}页,已经是最后一页</p>
+			{% endif %}
+		</div>
+
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>

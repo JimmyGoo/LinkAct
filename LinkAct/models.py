@@ -436,7 +436,7 @@ class MyUser(models.Model):
 	def email_user(self, subject, message, from_email = None, **kwargs):
 		self.user.email_user(subject, message, from_email, kwargs)
 
-	def create_user(self, usernames, passwords, email):
+	def create_user(self, usernames, passwords, email, nickname):
 				flag = True
 				temp = User.objects.all()
 				for item in temp:
@@ -447,7 +447,7 @@ class MyUser(models.Model):
 						u = User.objects.create_user(username=usernames, password=passwords, email = email)
 						u.save()
 						self.user = u
-						self.nickname = ''
+						self.nickname = nickname
 						self.birthday = date(1970, 1, 1)
 						self.city = ''
 						self.interests = '[]'
