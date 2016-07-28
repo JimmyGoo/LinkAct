@@ -52,7 +52,7 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation"><a href="{{ url1 }}?search_class=&search_content=&search_order=1&search_page=1">领客</a></li>
+					  	<li role="presentation"><a href="{{ url1 }}?search_class=create_time&search_content=&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
@@ -126,7 +126,15 @@
 		    </div>		    
 		    <input type="submit" name="submit" value="search_submit">
 		</form>
- -->
+
+		{% for data in new_data %}	
+			<p>{{ data.0 }}</p>
+			<a href="{{ data.2 }}">{{ data.1 }}</a> 
+		{% endfor %}
+		<form method='post'>
+			<input type='submit' name='submit' value='全部忽略'>
+		</form>
+		 -->
 		
 	<!-- 	{% for r in result %}
 		    <h2>
@@ -135,7 +143,7 @@
 		      </p>
 		       <a href="../act_info/?id={{ r.id }}&last_page={{ current_url }}">详情</a>
 		    </h2>
-		{% endfor %} -->
+		{% endfor %}-->
 
 
 		<div class="container" style="padding-top:30px;padding-bottom:30px;">
@@ -146,7 +154,7 @@
 		            	<div class="input-group" id="search_group">
 			                <input type="hidden" name="search_class" id="search_class" 
 			                value="{{search_class_pass_value}}">       
-			                <input type="text" class="form-control" name="search_content" placeholder="发现其他领客"
+			                <input type="text" class="form-control" name="search_content" placeholder="查找活动"
 			                value="{{search_content_pass_text}}">
 			                 <div class="input-group-btn search-panel">
 			                    <button type="button" class="btn btn-default dropdown-toggle search-btn-right" data-toggle="dropdown">
@@ -156,9 +164,12 @@
 			                    
 			                    <ul class="dropdown-menu" role="menu">
 			                      	
-			                      	<li><a value='username'>按照用户搜索</a></li>
-			                      	<li><a value='nickname'>按照昵称搜索</a></li>
-			                      	<li><a value='city'>按照城市搜索</a></li>			                     
+			                      	<li><a value='theme'>按照主题搜索</a></li>
+			                      	<li><a value='status'>按照状态搜索</a></li>
+			                      	<li><a value='name'>按照名字搜索</a></li>
+			                      	<li><a value='creator'>按照创建者搜索</a></li>	
+			                      	<li><a value='locale'>按照地点搜索</a></li>	
+			                      	<li><a value='introduction'>按照介绍搜索</a></li>	                     
 			                      	<li class="divider"></li>
 			                      	<li><a value='all'>无筛选条件</a></li>
 			                    </ul>
@@ -195,6 +206,7 @@
 								<p class="desc">{{show_act.act.locale}}</p>
 								<p class="desc">{{show_act.act.end_date}}</p>
 								<p class="desc">{{show_act.act.introduction}}</p>
+								<a href="../act_info/?id={{ show_act.act.id }}&last_page={{ current_url }}">详情</a>
 							</div>
 							<!-- <div class="social">
 								<ul>
@@ -210,10 +222,18 @@
 			</div>
 		</div>
 
-
-		
 		<a href="{{ no_param_path }}create_activity/">创建活动</a>
+		
+		{% if is_first_page == False %}
+		<a href="{{ first_page_url }}">首页</a>
+		<a href="{{ front_page_url }}">上一页</a>
+		{% endif %}
+
+		{% if is_last_page == False %}
 		<a href="{{ next_page_url }}">下一页</a>
+		{% endif %}
+
+		<p>当前第{{ current_page }}页</p>
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
@@ -227,5 +247,22 @@
 			</div>
 		</footer>
 	</body>
+	<!-- 
+	<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
+	<script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>-->
+	<script type="text/javascript">
+		$(document).ready(function(e){
+		    $('.search-panel .dropdown-menu').find('a').click(function(e) {
+				e.preventDefault();
+				
+				var concept = $(this).text();
+				var value = $(this).attr('value');
+
+				$('.search-panel span#search_class_text').text(concept);
+				$('#search_class').attr('value', value);
+			});
+		});
+	</script>
 </html>

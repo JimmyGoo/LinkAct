@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset='utf-8'>
-		<title>Explore the Activities</title>
+		<title>Link The Activities</title>
 		<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
 		<!-- 新 Bootstrap 核心 CSS 文件 -->
 		<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -17,6 +17,13 @@
 		<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		{% load staticfiles %}
 		<link rel="stylesheet" type="text/css" href="{%static "css/navigation.css" %}">
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{%static "css/activities_page.css" %}">
+
+	
+		
+		<script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>
+
 
 	</head>
 	<body margin='0px'>
@@ -34,7 +41,7 @@
     		<img id='user_img_id' src="{%static "img/default_avatar.jpg" %}"/>
     		{% endif %}
     		{% endif %}
-    		
+
 			<div class="container-fluid" id="navigation_container">
     			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      			<ul class="nav nav-pills navbar-left">
@@ -45,17 +52,17 @@
 
 					  	{%url 'linker_page_url' as url1 %}
 					  	{% if url1 %}
-					  	<li role="presentation"><a href="{{ url1 }}?search_class=&search_content=&search_order=1&search_page=1">领客</a></li>
+					  	<li role="presentation"><a href="{{ url1 }}?search_class=create_time&search_content=&search_order=1&search_page=1">领客</a></li>
 					  	{% endif %}
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{url2}}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation" class='active'><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
 					  	{% if url3 %}
-					  	<li role="presentation" class='active'><a href="{{ url3 }}">探索</a></li>
+					  	<li role="presentation"><a href="{{ url3 }}">探索</a></li>
 					  	{% endif %}
 
 					  	{%url 'share_page_url' as url4 %}
@@ -79,8 +86,8 @@
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">用户信息</a></li>
 					           	{% endif%}
-					           	{% url 'user_password_url' as url8%}
-					            {% if url8%}
+					           	{%url 'user_password_url' as url8%}
+					           	{% if url8%}
 					            <li><a href="{{ url8 }}">修改密码</a></li>
 					            {% endif %}
 				            </ul>
@@ -100,9 +107,133 @@
 	  		</div><!-- /.container-fluid -->
 		</nav>
 		<div class="cover">
-			<p id="title">Explore The Activties</p>
+			<p id="title">Enjoy The Activties</p>
 			<p id="subtitle">make the life better</p>
 		</div>
+
+		<!-- <form method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+		    <div class="input-group">
+		        <select class="combobox" name="search_class">
+		            <option></option>
+		            <option value="theme">主题</option>
+		            <option value="CT">Connecticut</option>
+		            <option value="NY">New York</option>
+		            <option value="MD">Maryland</option>
+		            <option value="VA">Virginia</option>
+		        </select>
+		        <input name="search_content" type="text" class="form-control">
+		    </div>		    
+		    <input type="submit" name="submit" value="search_submit">
+		</form>
+
+		{% for data in new_data %}	
+			<p>{{ data.0 }}</p>
+			<a href="{{ data.2 }}">{{ data.1 }}</a> 
+		{% endfor %}
+		<form method='post'>
+			<input type='submit' name='submit' value='全部忽略'>
+		</form>
+		 -->
+		
+	<!-- 	{% for r in result %}
+		    <h2>
+		      <p>
+		        <input type='text' value={{r.name}} >
+		      </p>
+		       <a href="../act_info/?id={{ r.id }}&last_page={{ current_url }}">详情</a>
+		    </h2>
+		{% endfor %}-->
+
+
+		<div class="container" style="padding-top:30px;padding-bottom:30px;">
+		    <div class="row">    
+		        <div class="col-md-12">
+				    <form method="POST" enctype="multipart/form-data">
+				    	{% csrf_token %}
+		            	<div class="input-group" id="search_group">
+			                <input type="hidden" name="search_class" id="search_class" 
+			                value="{{search_class_pass_value}}">       
+			                <input type="text" class="form-control" name="search_content" placeholder="查找活动"
+			                value="{{search_content_pass_text}}">
+			                 <div class="input-group-btn search-panel">
+			                    <button type="button" class="btn btn-default dropdown-toggle search-btn-right" data-toggle="dropdown">
+			                        <span id="search_class_text" name="search_class_text">
+			                        	{{search_class_pass_text}}</span> <span class="caret"></span>
+			                    </button>
+			                    
+			                    <ul class="dropdown-menu" role="menu">
+			                      	
+			                      	<li><a value='theme'>按照主题搜索</a></li>
+			                      	<li><a value='status'>按照状态搜索</a></li>
+			                      	<li><a value='name'>按照名字搜索</a></li>
+			                      	<li><a value='creator'>按照创建者搜索</a></li>	
+			                      	<li><a value='locale'>按照地点搜索</a></li>	
+			                      	<li><a value='introduction'>按照介绍搜索</a></li>	                     
+			                      	<li class="divider"></li>
+			                      	<li><a value='all'>无筛选条件</a></li>
+			                    </ul>
+			                </div>
+			                <span class="input-group-btn">
+			                    <button class="btn btn-default" type="submit" name="submit" value="search_submit"><span class="glyphicon glyphicon-search"></span></button>
+			                </span>
+		            	</div>
+		            </form>
+		        </div>
+			</div>
+		</div>
+
+
+		<div class="container">
+			<div class="row">
+				<div class="[ col-xs-12 col-sm-offset-2 col-sm-8 ]">
+					<ul class="event-list">
+						{% for show_act in pass_data %}
+						<li>
+							<time datetime="2014-07-20">
+								<span class="day">{{show_act.act.start_date|date:"d"}}</span>
+								<span class="month">{{show_act.act.start_date|date:"m月"}}</span>
+								<span class="year">{{show_act.act.start_date|date:"Y"}}</span>
+								
+							</time>
+							{% if show_act.has_show_img == True%}
+							<img alt="" src="{{show_act.pass_img.img.url}}" />
+							{% else %}
+							<img alt="" src="{%static "img/default_act_img.jpg" %}"/>
+							{% endif %}
+							<div class="info">
+								<h2 class="title">{{show_act.act.name}}</h2>
+								<p class="desc">{{show_act.act.locale}}</p>
+								<p class="desc">{{show_act.act.end_date}}</p>
+								<p class="desc">{{show_act.act.introduction}}</p>
+								<a href="../act_info/?id={{ show_act.act.id }}&last_page={{ current_url }}">详情</a>
+							</div>
+							<!-- <div class="social">
+								<ul>
+									<li class="facebook" style="width:33%;"><a href="#facebook"><span class="fa fa-facebook"></span></a></li>
+									<li class="twitter" style="width:34%;"><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+									<li class="google-plus" style="width:33%;"><a href="#google-plus"><span class="fa fa-google-plus"></span></a></li>
+								</ul>
+							</div> -->
+						</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<a href="{{ no_param_path }}create_activity/">创建活动</a>
+		
+		{% if is_first_page == False %}
+		<a href="{{ first_page_url }}">首页</a>
+		<a href="{{ front_page_url }}">上一页</a>
+		{% endif %}
+
+		{% if is_last_page == False %}
+		<a href="{{ next_page_url }}">下一页</a>
+		{% endif %}
+
+		<p>当前第{{ current_page }}页</p>
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
@@ -116,4 +247,22 @@
 			</div>
 		</footer>
 	</body>
+	<!-- 
+	<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+	<script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>-->
+	<script type="text/javascript">
+		$(document).ready(function(e){
+		    $('.search-panel .dropdown-menu').find('a').click(function(e) {
+				e.preventDefault();
+				
+				var concept = $(this).text();
+				var value = $(this).attr('value');
+
+				$('.search-panel span#search_class_text').text(concept);
+				$('#search_class').attr('value', value);
+			});
+		});
+	</script>
 </html>

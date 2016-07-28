@@ -1,8 +1,6 @@
 from django import forms
-from .models import MyUser
-from .models import Activity
-from .models import Interest
-from datetime import date
+from .models import MyUser, Activity, Interest, Theme
+from datetime import date, datetime
 from LinkAct import models
 
 
@@ -14,6 +12,13 @@ from LinkAct import models
 def get_interests_style():
     a = []
     for x in Interest.objects.all():
+        t = (x.id, x.get_content())
+        a.append(t)
+    
+    return tuple(a)
+def get_themes_style():
+    a = []
+    for x in Theme.objects.all():
         t = (x.id, x.get_content())
         a.append(t)
     
@@ -51,17 +56,16 @@ class ActForm(forms.Form):
     #地点
     locale = forms.CharField(max_length = 20)
     #主题
-    theme = forms.MultipleChoiceField(label=u'活动类型', choices=get_interests_style(), widget=forms.CheckboxSelectMultiple())
+    theme = forms.MultipleChoiceField(label=u'活动类型', choices=get_themes_style(), widget=forms.CheckboxSelectMultiple())
     #开始时间
-    start_date = forms.DateField(initial = date.today)
+    start_date = forms.DateTimeField(initial = datetime.now)
     #结束时间
-    end_date = forms.DateField(initial = date.today)
+    end_date = forms.DateTimeField(initial = datetime.now)
     #发起介绍
     introduction = forms.CharField(max_length = 300)
         
 #发起评论信息
 class CommentForm(forms.Form):
-    commenter = forms.IntegerField()
     score = forms.IntegerField()
     content = forms.CharField(max_length = 20)
 
