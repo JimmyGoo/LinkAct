@@ -689,7 +689,7 @@ class MyUser(models.Model):
 				else:
 					temp[i] = (temp[i][0], temp[i][1] + 1)
 			#地点与用户相似会增加权值
-			similar = self.str_similar(self.get_city, temp[i][0].get_locale())
+			similar = self.str_similar(self.get_city(), temp[i][0].get_locale())
 			temp[i] = (temp[i][0], temp[i][1] + similar * 5)
 			#每一个与用户的爱好相关的主题增加权值10
 			user_theme = []
@@ -707,7 +707,7 @@ class MyUser(models.Model):
 		#剔除权值为0的和状态不是未开始的
 		i = 0
 		while(i < len(temp)):
-			if temp[i][1] == 0 or temp[0].get_status() != 'created':
+			if temp[i][1] == 0 or temp[i][0].get_status() != 'created':
 				del temp[i]
 			else:
 				i += 1
