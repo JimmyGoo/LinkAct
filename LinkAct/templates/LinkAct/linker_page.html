@@ -70,10 +70,10 @@
 		        		<li class="dropdown">
 			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
 				            <ul class="dropdown-menu">
-					            <li><a href="#">管理活动</a></li>
+					            <!-- <li><a href="#">管理活动</a></li>
 					            <li><a href="#">查看好友</a></li>
 					            <li><a href="#">分享</a></li>
-					            <li role="separator" class="divider"></li>
+					            <li role="separator" class="divider"></li> -->
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">用户信息</a></li>
@@ -104,6 +104,33 @@
 		</div>
 
 		<div class="container" style="padding-top:30px;padding-bottom:30px;">
+			<legend>好友请求</legend>
+			{% for ask in requests %}
+
+			<form class="form-horizontal" method='post'>
+				{% csrf_token %}
+				<fieldset>
+
+			
+
+			<!-- Button (Double) -->
+				<div class="form-group">
+				  	<label class="col-md-4 control-label" for="button1id">来自{{ask.2}}请求</label>
+				  	<a class="btn btn-info"href="{{ ask.1 }}">查看他的资料</a>
+				 	<input type='hidden' name='request_id' value='{{ask.0}}'>
+				 	<input type='hidden' name='old_url' value={{ current_url }}> 
+				  	<input type='submit' name='submit' class='btn btn-success' value='同意'>
+				    <input type='submit' name='submit' value='拒绝' class="btn btn-danger">
+				 
+				</div>
+
+				</fieldset>
+			</form>
+
+		{% endfor %}
+		</div>
+
+		<div class="container" style="padding-top:30px;padding-bottom:30px;">
 		    <div class="row">    
 		        <div class="col-md-12">
 				    <form method="POST" enctype="multipart/form-data">
@@ -125,7 +152,7 @@
 			                      	<li><a value='nickname'>按照昵称搜索</a></li>
 			                      	<li><a value='city'>按照城市搜索</a></li>			                     
 			                      	<li class="divider"></li>
-			                      	<li><a value='all'>无筛选条件</a></li>
+			                      	<li><a value='all' href="{{url2}}?search_class=create_time&search_content=&search_order=1&search_page=1">无筛选条件</a></li>
 			                    </ul>
 			                </div>
 			                <span class="input-group-btn">
@@ -136,20 +163,7 @@
 		        </div>
 			</div>
 		</div>
-
-		{% for ask in requests %}
-		    <form method='post'>
-		    	{% csrf_token %}
-		        <p>
-		      		<a href="{{ ask.1 }}">{{ ask.2 }}</a>
-		      		<input type='hidden' name='request_id' value='{{ask.0}}'>
-		      		<input type='text' value='请求加你为好友'>
-		        	<input type='submit' name='submit' class='' value='同意'>
-		        	<input type='submit' name='submit' value='拒绝'>
-		        	<input type='hidden' name='old_url' value={{ current_url }}> 
-		        </p>
-		    </form>
-		{% endfor %}
+		
 		{% for result_user in pass_data %}
 		{#用户列表#}
 		<div class="container">
@@ -160,7 +174,7 @@
 		                <div class="col-xs-12 col-sm-8">
 		                    <h2>{{result_user.other_user.user.username}}</h2>
 		                    
-		                    <h3>{{result_user.other_user.nickname}}</h3>
+		                    <h4>昵称:{{result_user.other_user.nickname}}</h4>
 							{% if result_user.other_user.city == ''%}
 							<p><strong>城市: </strong>尚未填写</p>
 							{% else %}
@@ -190,8 +204,8 @@
 		            </div>            
 		            <div class="col-xs-12 divider text-center">
 		                <div class="col-xs-12 col-sm-4 emphasis">
-		                    <h2><strong> 20,7K </strong></h2>                    
-		                    <p><small>Followers</small></p>
+		                    <h2><strong>{{result_user.friends_num}} </strong></h2>                    
+		                    <p><small>好友数</small></p>
 		                    <form method='post'>{% csrf_token %} 
 		                    {% if result_user.other_can_friends == '0' %}
 		                    <button class="btn btn-success btn-block" name='submit' value='加为好友'>
@@ -200,31 +214,28 @@
 
 		                    </button>
 		                    {% elif result_user.other_can_friends == '1' %}
-		                    <button class="btn btn-success btn-block">
+		                    <button class="btn btn-success btn-block" disabled='disabled'>
 		                    	请求已发送
 		                    </button>
 		                    {% else %}
-		                    <button class="btn btn-success btn-block">
+		                    <button class="btn btn-success btn-block" disabled='disabled'>
 		                    	已是好友
 		                    </button>
 		                    {% endif %}
 		                </form>	 
 		                </div>
 		                <div class="col-xs-12 col-sm-4 emphasis">
-		                    <h2><strong>245</strong></h2>                    
-		                    <p><small>Following</small></p>
+		                    <h2><strong>{{result_user.p_act_number}}</strong></h2>                    
+		                    <p><small>参加活动数</small></p>
 		                    <button class="btn btn-info btn-block"><span class="fa fa-user"></span>
-		                    	<a href="../personal_info/?id={{ result_user.other_user.user.id }}&last_page={{ current_url }}"> 查看信息 
+		                    	<a btn btn-info href="../personal_info/?id={{ result_user.other_user.user.id }}&last_page={{ current_url }}"> 查看信息 
 		                    	</a>
 		                    </button>
 		                </div>
 		                <div class="col-xs-12 col-sm-4 emphasis">
-		                    <h2><strong>43</strong></h2>                    
-		                    <p><small>Snippets</small></p>
-		                   <!--  <div class="btn-group dropup btn-block">
-		                      <button type="button" class="btn btn-primary"><span class="fa fa-gear"></span> Options </button>
-		                 
-		                    </div> -->
+		                    <h2><strong>{{result_user.c_act_number}}</strong></h2>                    
+		                    <p><small>创建活动数</small></p>
+		                   
 		                </div>
 		            </div>
 		    	 </div>                 
@@ -232,18 +243,21 @@
 			</div>
 		</div>
 		{% endfor %}
+		<div style='text-align:center'>
+			{% if is_first_page == False %}
+			<a class='btn btn-info' href="{{ first_page_url }}">首页</a>
+			<a class='btn btn-info' href="{{ front_page_url }}">上一页</a>
+			{% endif %}
 
-		{% if is_first_page == False %}
-		<a href="{{ first_page_url }}">首页</a>
-		<a href="{{ front_page_url }}">上一页</a>
-		{% endif %}
-
-		{% if is_last_page == False %}
-		<a href="{{ next_page_url }}">下一页</a>
-		{% endif %}
-
-		<p>当前第{{ current_page }}页</p>
-
+			{% if is_last_page == False %}
+			<a class='btn btn-info' href="{{ next_page_url }}">下一页</a>
+			<p style='font-size:14px;font-family:Helvetica; font-weight:bold;'>当前第{{ current_page }}页</p>
+			{% else %}
+			<p style='font-size:14px;font-family:Helvetica; font-weight:bold;'>当前第{{ current_page }}页 已经为最后一页</p>
+			{% endif %}
+			
+			
+		</div>
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>
 				<hr/>

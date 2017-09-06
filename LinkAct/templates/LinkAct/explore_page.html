@@ -57,12 +57,12 @@
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation" class='active'><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
 					  	{% if url3 %}
-					  	<li role="presentation"><a href="{{ url3 }}">探索</a></li>
+					  	<li role="presentation" class='active'><a href="{{ url3 }}">探索</a></li>
 					  	{% endif %}
 
 					  	{%url 'share_page_url' as url4 %}
@@ -78,10 +78,10 @@
 		        		<li class="dropdown">
 			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
 				            <ul class="dropdown-menu">
-					            <li><a href="#">管理活动</a></li>
+					          <!--   <li><a href="#">管理活动</a></li>
 					            <li><a href="#">查看好友</a></li>
 					            <li><a href="#">分享</a></li>
-					            <li role="separator" class="divider"></li>
+					            <li role="separator" class="divider"></li> -->
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">用户信息</a></li>
@@ -111,80 +111,10 @@
 			<p id="subtitle">make the life better</p>
 		</div>
 
-		<!-- <form method="POST" enctype="multipart/form-data">
-			{% csrf_token %}
-		    <div class="input-group">
-		        <select class="combobox" name="search_class">
-		            <option></option>
-		            <option value="theme">主题</option>
-		            <option value="CT">Connecticut</option>
-		            <option value="NY">New York</option>
-		            <option value="MD">Maryland</option>
-		            <option value="VA">Virginia</option>
-		        </select>
-		        <input name="search_content" type="text" class="form-control">
-		    </div>		    
-		    <input type="submit" name="submit" value="search_submit">
-		</form>
-
-		{% for data in new_data %}	
-			<p>{{ data.0 }}</p>
-			<a href="{{ data.2 }}">{{ data.1 }}</a> 
-		{% endfor %}
-		<form method='post'>
-			<input type='submit' name='submit' value='全部忽略'>
-		</form>
-		 -->
-		
-	<!-- 	{% for r in result %}
-		    <h2>
-		      <p>
-		        <input type='text' value={{r.name}} >
-		      </p>
-		       <a href="../act_info/?id={{ r.id }}&last_page={{ current_url }}">详情</a>
-		    </h2>
-		{% endfor %}-->
-
-
-		<div class="container" style="padding-top:30px;padding-bottom:30px;">
-		    <div class="row">    
-		        <div class="col-md-12">
-				    <form method="POST" enctype="multipart/form-data">
-				    	{% csrf_token %}
-		            	<div class="input-group" id="search_group">
-			                <input type="hidden" name="search_class" id="search_class" 
-			                value="{{search_class_pass_value}}">       
-			                <input type="text" class="form-control" name="search_content" placeholder="查找活动"
-			                value="{{search_content_pass_text}}">
-			                 <div class="input-group-btn search-panel">
-			                    <button type="button" class="btn btn-default dropdown-toggle search-btn-right" data-toggle="dropdown">
-			                        <span id="search_class_text" name="search_class_text">
-			                        	{{search_class_pass_text}}</span> <span class="caret"></span>
-			                    </button>
-			                    
-			                    <ul class="dropdown-menu" role="menu">
-			                      	
-			                      	<li><a value='theme'>按照主题搜索</a></li>
-			                      	<li><a value='status'>按照状态搜索</a></li>
-			                      	<li><a value='name'>按照名字搜索</a></li>
-			                      	<li><a value='creator'>按照创建者搜索</a></li>	
-			                      	<li><a value='locale'>按照地点搜索</a></li>	
-			                      	<li><a value='introduction'>按照介绍搜索</a></li>	                     
-			                      	<li class="divider"></li>
-			                      	<li><a value='all'>无筛选条件</a></li>
-			                    </ul>
-			                </div>
-			                <span class="input-group-btn">
-			                    <button class="btn btn-default" type="submit" name="submit" value="search_submit"><span class="glyphicon glyphicon-search"></span></button>
-			                </span>
-		            	</div>
-		            </form>
-		        </div>
-			</div>
-		</div>
 
 
 		<div class="container">
+			<legend>为您推荐活动</legend>
 			<div class="row">
 				<div class="[ col-xs-12 col-sm-offset-2 col-sm-8 ]">
 					<ul class="event-list">
@@ -196,25 +126,25 @@
 								<span class="year">{{show_act.act.start_date|date:"Y"}}</span>
 								
 							</time>
-							{% if show_act.has_show_img == True%}
+							{% if show_act.has_show_img == True and show_act.pass_img.img%}
 							<img alt="" src="{{show_act.pass_img.img.url}}" />
 							{% else %}
 							<img alt="" src="{%static "img/default_act_img.jpg" %}"/>
 							{% endif %}
 							<div class="info">
 								<h2 class="title">{{show_act.act.name}}</h2>
-								<p class="desc">{{show_act.act.locale}}</p>
-								<p class="desc">{{show_act.act.end_date}}</p>
-								<p class="desc">{{show_act.act.introduction}}</p>
-								<a href="../act_info/?id={{ show_act.act.id }}&last_page={{ current_url }}">详情</a>
+								<p class="desc">活动地点:{{show_act.act.locale}}</p>
+								<p class="desc">活动结束时间:{{show_act.act.end_date|date:"Y年m月d日"}}</p>
+							
+								<p class="desc">活动简介:{{show_act.act.introduction}}</p>
+								
 							</div>
-							<!-- <div class="social">
+							<div class="social">
 								<ul>
-									<li class="facebook" style="width:33%;"><a href="#facebook"><span class="fa fa-facebook"></span></a></li>
-									<li class="twitter" style="width:34%;"><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
-									<li class="google-plus" style="width:33%;"><a href="#google-plus"><span class="fa fa-google-plus"></span></a></li>
+									<li class="arrow"><a href="../act_info/?id={{ show_act.act.id }}&last_page={{ current_url }}">
+										 <span class="fa fa-arrow-right"></span></a></li>
 								</ul>
-							</div> -->
+							</div>
 						</li>
 						{% endfor %}
 					</ul>
@@ -222,18 +152,114 @@
 			</div>
 		</div>
 
-		<a href="{{ no_param_path }}create_activity/">创建活动</a>
+		{% for result_user in user_data %}
+		{#用户列表#}
+		<div class="container">
+			<legend>为您推荐领客</legend>
+			<div class="row">
+				<div class="col-md-offset-2 col-md-8 col-lg-offset-3 col-lg-6">
+		    	 <div class="well profile">
+		            <div class="col-sm-12">
+		                <div class="col-xs-12 col-sm-8">
+		                    <h2>{{result_user.other_user.user.username}}</h2>
+		                    
+		                    <h3>{{result_user.other_user.nickname}}</h3>
+							{% if result_user.other_user.city == ''%}
+							<p><strong>城市: </strong>尚未填写</p>
+							{% else %}
+		                    <p><strong>城市: </strong>{{result_user.other_user.city}}</p>
+		                    {% endif %}
+		                    <p><strong>爱好: </strong>
+		                    	{% if result_user.has_interest == False%}
+		                    	尚未填写
+		                    	{% else %}
+		                    	{%for one_interest in result_user.other_interests%}
+		                    	<span class="tags">{{one_interest}}</span>
+		                    	{% endfor %}
+		                    	{%endif%}
+		                     
+		                    </p>
+		                    <p>
+		                    	共同好友：
+		                    	{% for friend in result_user.same_friends %}
+		                    	<span class="tags">{{friend}}</span>
+		                    	{% endfor %}
+		                    </p>
+		                    <p>
+		                    	共同参与过的活动数量：
+		                    	<span class="tags">{{result_user.same_acts_number}}</span>
+		                    </p>
+		                    <p>
+		                    	共同爱好数量：
+		                    	<span class="tags">{{result_user.same_interests_number}}</span>
+		                    </p>
+	                	</div>             
+		                <div class="col-xs-12 col-sm-4 text-center">
+		                    <figure>
+		                       {% if result_user.other_has_own_avartar == True%}
+				                <img id="other_user_img" src="{{result_user.other_img.img.url}}" alt="{{result_user.other_user.user.username}}" title="{{result_user.other_user.user.username}}"/>
+				                {% else %}
+				                <img id="other_user_img" src="{%static "img/default_avatar.jpg" %}" alt="{{result_user.other_user.user.username}}" title="{{result_user.other_user.user.username}}"/>
+				                {% endif %}
+		                        
+		                    </figure>
+		                </div>
+		            </div>            
+		            <div class="col-xs-12 divider text-center">
+		                <div class="col-xs-12 col-sm-4 emphasis">
+		                    <h2><strong> {{result_user.friends_number}} </strong></h2>                    
+		                    <p><small>好友</small></p>
+		                    <form method='post'>{% csrf_token %} 
+		                    {% if result_user.other_can_friends == '0' %}
+		                    <button class="btn btn-success btn-block" name='submit' value='加为好友'>
+		                    	<span class="fa fa-plus-circle"></span> 加为好友	          		                      		
+		                    	<input type='hidden' name='person_id' value='{{result_user.other_user.user.id}}'>	                    
+
+		                    </button>
+		                    {% elif result_user.other_can_friends == '1' %}
+		                    <button class="btn btn-success btn-block"  disabled="disabled">
+		                    	请求已发送
+		                    </button>
+		                    {% else %}
+		                    <button class="btn btn-success btn-block"  disabled="disabled">
+		                    	已是好友
+		                    </button>
+		                    {% endif %}
+		                	</form>	 
+		                </div>
+		                <div class="col-xs-12 col-sm-4 emphasis">
+		                    <h2><strong>{{result_user.p_act_number}}</strong></h2>                    
+		                    <p><small>参加的活动</small></p>
+		                    <button class="btn btn-info btn-block"><span class="fa fa-user"></span>
+		                    	<a href="../personal_info/?id={{ result_user.other_user.user.id }}&last_page={{ current_url }}"> 查看信息 
+		                    	</a>
+		                    </button>
+	                </div>
+		                <div class="col-xs-12 col-sm-4 emphasis">
+		                    <h2><strong>{{result_user.c_act_number}}</strong></h2>                    
+		                    <p><small>发起的活动</small></p>
+		                    
+		                </div>
+		            </div>
+		    	 </div>                 
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+
+
 		
-		{% if is_first_page == False %}
-		<a href="{{ first_page_url }}">首页</a>
-		<a href="{{ front_page_url }}">上一页</a>
+		
+		<!-- {% if is_first_page == False %}
+		<a class='btn btn-info' href="{{ first_page_url }}">首页</a>
+		<a class='btn btn-info' href="{{ front_page_url }}">上一页</a>
 		{% endif %}
 
 		{% if is_last_page == False %}
-		<a href="{{ next_page_url }}">下一页</a>
+		<a class='btn btn-info' href="{{ next_page_url }}">下一页</a>
 		{% endif %}
 
-		<p>当前第{{ current_page }}页</p>
+		<p>当前第{{ current_page }}页</p> -->
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>

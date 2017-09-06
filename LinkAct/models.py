@@ -45,12 +45,16 @@ class MyUser(models.Model):
 	 #好友列表
 
 	friends = models.CharField(max_length = 300, default = '[]')
-
+	friend_movement_id = models.CharField(max_length = 300, default = '[]')
 	friend_movement = models.CharField(max_length = 300, default = '[]')
 	movement_name = models.CharField(max_length = 300, default = '[]')
 	movement_link = models.CharField(max_length = 300, default = '[]')
 
 	#get attribute
+	def get_friend_movement_id(self):
+		if isinstance(self.friend_movement_id, str):
+			return json.loads(self.friend_movement_id)
+		return self.friend_movement_id
 	def get_friend_movement(self):
 		if isinstance(self.friend_movement, str):
 			return json.loads(self.friend_movement)
@@ -116,6 +120,34 @@ class MyUser(models.Model):
 
 
 	#set attribute
+
+	def set_friend_movement_id(self, friend_movement_id):
+		if isinstance(friend_movement_id, str):
+			self.friend_movement_id = friend_movement_id
+		else:
+			self.friend_movement_id = json.dumps(friend_movement_id)
+		self.save()
+	def append_friend_movement_id(self, friend_movement_id):
+		f = self.get_friend_movement_id()
+
+		f.append(friend_movement_id)
+		self.friend_movement_id = json.dumps(f)
+		self.save()
+	def clear_friend_movement_id(self):
+		temp = []
+		self.set_friend_movement_id(temp)
+	def remove_friend_movement(self, friend_movement):
+		f = self.get_friend_movement_id()
+		if friend_movement_id in f:
+			f.remove(friend_movement_id)
+			self.friend_movement_id = json.dumps(f)
+			self.save()
+			return True
+		self.friend_movement_id = json.dumps(f)
+		self.save()
+		return False
+
+
 	def set_friend_movement(self, friend_movement):
 		if isinstance(friend_movement, str):
 			self.friend_movement = friend_movement
@@ -556,6 +588,8 @@ class MyUser(models.Model):
 			result.append(x[0])
 		return result
 	def str_similar(self, s, t):
+		if s == '' or t == '':
+			return 0
 		result = 0
 		i = 0
 		while(i < len(t)):
@@ -672,6 +706,62 @@ class MyUser(models.Model):
 			if a.score > 3:
 				act.append_supporters(self.get_id())
 			return True
+
+
+	def get_recommended_user(self):
+		temp = []
+		for item in MyUser.objects.all():
+			if item.get_id() != self.get_id() and item.id not in self.get_friends():
+				temp.append((item, 0, [], 0, 0))
+
+		
+		i = 0
+		while i < len(temp):
+			#与用户的每一个共同爱好增加权值20
+			same_interests = [var for var in self.get_interests() if var in temp[i][0].get_interests()]
+			temp[i] = (temp[i][0], temp[i][1] + len(same_interests) * 20, temp[i][2], len(same_interests), temp[i][4])
+			#与用户的每一个共同好友增加权值20
+			same_friends = [var for var in self.get_friends() if var in temp[i][0].get_friends()]
+			temp_same_friends = []
+			for var in same_friends:
+				temp_same_friends.append(MyUser.objects.get(id = var).get_nickname())
+			temp[i] = (temp[i][0], temp[i][1] + len(same_friends) * 20, temp_same_friends, temp[i][3], temp[i][4])
+			#与用户的每一个共同活动增加权值20
+			self_acts = []
+			for var in self.get_participate_terminative_acts():
+				self_acts.append(var)
+			for var in self.get_create_terminative_acts():
+				self_acts.append(var)
+			for var in self.get_participate_ongoing_acts():
+				self_acts.append(var)
+			for var in self.get_create_ongoing_acts():
+				self_acts.append(var)
+			same_acts = []
+			for var in temp[i][0].get_participate_terminative_acts():
+				if var in self_acts:
+					same_acts.append(var)
+			for var in temp[i][0].get_create_terminative_acts():
+				if var in self_acts:
+					same_acts.append(var)
+			for var in temp[i][0].get_participate_ongoing_acts():
+				if var in self_acts:
+					same_acts.append(var)
+			for var in temp[i][0].get_create_ongoing_acts():
+				if var in self_acts:
+					same_acts.append(var)
+			temp[i] = (temp[i][0], temp[i][1] + len(same_acts) * 20, temp[i][2], temp[i][3], len(same_acts))
+			#与用户城市的相似会增加权值
+			similar = self.str_similar(self.get_city(), temp[i][0].get_city())
+			temp[i] = (temp[i][0], temp[i][1] * (similar * 0.5 + 1), temp[i][2], temp[i][3], temp[i][4])
+			i += 1
+		#排序
+		temp = sorted(temp, key = lambda asd:asd[1], reverse = True)
+		result = []
+		for x in temp:
+			result.append((x[0], x[2], x[3], x[4]))
+		return result
+
+
 	def get_recommended_activities(self):
 		temp = []
 		for item in Activity.objects.all():
@@ -701,13 +791,15 @@ class MyUser(models.Model):
 			for theme_id in user_theme:
 				if theme_id in act_theme:
 					temp[i] = (temp[i][0], temp[i][1] + 10)
+			if temp[i][0].get_status() == 'created':
+				temp[i] = (temp[i][0], temp[i][1] + 1000)
 			i += 1
 		
 
 		#剔除权值为0的和状态不是未开始的
 		i = 0
 		while(i < len(temp)):
-			if temp[i][1] == 0 or temp[i][0].get_status() != 'created':
+			if temp[i][1] == 0 or temp[i][0].get_status() == 'finished':
 				del temp[i]
 			else:
 				i += 1
@@ -879,6 +971,11 @@ class Activity(models.Model):
 	def update_end_date(self):
 		self.end_date = datetime.now()
 		self.save()
+
+	def set_end_date(self, date):
+		self.end_date = date
+		self.save()
+		
 	def set_introduction(self, introduction):
 		self.introduction = introduction
 		self.save()

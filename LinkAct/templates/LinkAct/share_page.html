@@ -50,7 +50,7 @@
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -71,10 +71,10 @@
 		        		<li class="dropdown">
 			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
 				            <ul class="dropdown-menu">
-					            <li><a href="#">管理活动</a></li>
+					            <!-- <li><a href="#">管理活动</a></li>
 					            <li><a href="#">查看好友</a></li>
 					            <li><a href="#">分享</a></li>
-					            <li role="separator" class="divider"></li>
+					            <li role="separator" class="divider"></li> -->
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">用户信息</a></li>

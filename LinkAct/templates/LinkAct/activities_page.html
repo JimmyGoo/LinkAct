@@ -78,10 +78,10 @@
 		        		<li class="dropdown">
 			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
 				            <ul class="dropdown-menu">
-					            <li><a href="#">管理活动</a></li>
+					            <!-- <li><a href="#">管理活动</a></li>
 					            <li><a href="#">查看好友</a></li>
 					            <li><a href="#">分享</a></li>
-					            <li role="separator" class="divider"></li>
+					            <li role="separator" class="divider"></li> -->
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">用户信息</a></li>
@@ -110,40 +110,24 @@
 			<p id="title">Enjoy The Activties</p>
 			<p id="subtitle">make the life better</p>
 		</div>
-
-		<!-- <form method="POST" enctype="multipart/form-data">
-			{% csrf_token %}
-		    <div class="input-group">
-		        <select class="combobox" name="search_class">
-		            <option></option>
-		            <option value="theme">主题</option>
-		            <option value="CT">Connecticut</option>
-		            <option value="NY">New York</option>
-		            <option value="MD">Maryland</option>
-		            <option value="VA">Virginia</option>
-		        </select>
-		        <input name="search_content" type="text" class="form-control">
-		    </div>		    
-		    <input type="submit" name="submit" value="search_submit">
-		</form>
-
-		{% for data in new_data %}	
-			<p>{{ data.0 }}</p>
-			<a href="{{ data.2 }}">{{ data.1 }}</a> 
-		{% endfor %}
-		<form method='post'>
-			<input type='submit' name='submit' value='全部忽略'>
-		</form>
-		 -->
+		<div class="container" style="padding-top:30px;padding-bottom:30px;">
+			<legend>好友动态</legend>
+			{% for data in new_data %}
+			<div class="form-group">
+				<label class="control-label">您的好友:{{ data.3 }}参加了此活动</label>
+				<a class="btn btn-info" href="{{ data.2 }}">{{ data.1 }}</a>
+			</div>
+			{% endfor %}
+			{%if has_moment %}
+			<form method='post'>
+				{% csrf_token %}
+				<input type='hidden' value='wf'>
+				<input class='btn btn-danger'type='submit' name='submit' value='全部忽略'>
+			</form>
+			{%endif%}
+		</div>
 		
-	<!-- 	{% for r in result %}
-		    <h2>
-		      <p>
-		        <input type='text' value={{r.name}} >
-		      </p>
-		       <a href="../act_info/?id={{ r.id }}&last_page={{ current_url }}">详情</a>
-		    </h2>
-		{% endfor %}-->
+	
 
 
 		<div class="container" style="padding-top:30px;padding-bottom:30px;">
@@ -169,9 +153,10 @@
 			                      	<li><a value='name'>按照名字搜索</a></li>
 			                      	<li><a value='creator'>按照创建者搜索</a></li>	
 			                      	<li><a value='locale'>按照地点搜索</a></li>	
-			                      	<li><a value='introduction'>按照介绍搜索</a></li>	                     
+			                      	<li><a value='introduction'>按照介绍搜索</a></li>
 			                      	<li class="divider"></li>
-			                      	<li><a value='all'>无筛选条件</a></li>
+			                      	<li><a href="{{ url2 }}?search_class=create_time&search_content=&search_order=1&search_page=1">展示全部</a></li>	                     
+			                      	
 			                    </ul>
 			                </div>
 			                <span class="input-group-btn">
@@ -198,7 +183,7 @@
 								<span class="year">{{show_act.act.start_date|date:"Y"}}</span>
 								
 							</time>
-							{% if show_act.has_show_img == True%}
+							{% if show_act.has_show_img == True and show_act.pass_img.img %}
 							<img alt="" src="{{show_act.pass_img.img.url}}" />
 							{% else %}
 							<img alt="" src="{%static "img/default_act_img.jpg" %}"/>
@@ -206,7 +191,7 @@
 							<div class="info">
 								<h2 class="title">{{show_act.act.name}}</h2>
 								<p class="desc">活动地点:{{show_act.act.locale}}</p>
-								<p class="desc">活动结束时间:{{show_act.act.end_date}}</p>
+								<p class="desc">活动结束时间:{{show_act.act.end_date|date:"Y年m月d日"}}</p>
 							
 								<p class="desc">活动简介:{{show_act.act.introduction}}</p>
 								
@@ -227,13 +212,13 @@
 		
 		<div style = 'text-align:center'>
 			{% if is_first_page == False %}
-			<a href="{{ first_page_url }}">首页</a>
-			<a href="{{ front_page_url }}">上一页</a>
+			<a class='btn btn-info' href="{{ first_page_url }}">首页</a>
+			<a class='btn btn-info' href="{{ front_page_url }}">上一页</a>
 
 			{% endif %}
 
 			{% if is_last_page == False %}
-			<a href="{{ next_page_url }}">下一页</a>
+			<a class='btn btn-info' href="{{ next_page_url }}">下一页</a>
 			<p>当前第{{ current_page }}页</p>
 			{% else %}
 			<p>当前第{{ current_page }}页,已经是最后一页</p>

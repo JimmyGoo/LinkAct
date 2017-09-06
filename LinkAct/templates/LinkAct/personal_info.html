@@ -56,7 +56,7 @@
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="activities/?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -78,10 +78,10 @@
 		        		<li class="dropdown">
 			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
 				            <ul class="dropdown-menu">
-					            <li><a href="#">管理活动</a></li>
+					          <!--   <li><a href="#">管理活动</a></li>
 					            <li><a href="#">查看好友</a></li>
 					            <li><a href="#">分享</a></li>
-					            <li role="separator" class="divider"></li>
+					            <li role="separator" class="divider"></li> -->
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">个人信息</a></li>
@@ -108,23 +108,10 @@
 	  		</div><!-- /.container-fluid -->
 		</nav>
 
-		<!-- {% if set_info%}
-		{% if form%}
-		<form method="post">
-		    {% csrf_token %}
-		    账号：<input type="label" name="username" value={{personal_msg.username}} readonly="readonly">
-		    昵称：<input type="text" name="nickname" value={{personal_msg.myuser.nickname}}>
-		    email：<input type="text" name="email" value={{personal_msg.email}}>
-		    城市：<input type="text" name="city" value={{personal_msg.myuser.city}}>
-		    爱好：<input type="text" name="interest" value={{interest_msg}} readonly="readonly">
-		    <input type="submit" value="提交" />
-		</form>
-		{% endif %}
-
-		{% else %}
+	
 
 
-		{% endif %} -->
+
 		<div class="container">
 		    <div class="row profile">
 				<div class="col-md-3">
@@ -157,24 +144,9 @@
 						<div class="profile-usermenu">
 							<ul class="nav">
 								<li class="active">
-									<a href="#">
+									<a href="">
 									<i class="glyphicon glyphicon-home"></i>
-									个人信息 </a>
-								</li>
-								<li>
-									<a href="#">
-									<i class="glyphicon glyphicon-user"></i>
-									用户信息设置 </a>
-								</li>
-								<li>
-									<a href="#" target="_blank">
-									<i class="glyphicon glyphicon-tasks"></i>
-									管理活动 </a>
-								</li>
-								<li>
-									<a href="{{url8}}">
-									<i class="glyphicon glyphicon-lock"></i>
-									设置密码 </a>
+									TA的信息 </a>
 								</li>
 							</ul>
 						</div>
@@ -253,13 +225,29 @@
 		<br>
 		<br>
 
-		<form method='post'>
-			{% csrf_token %}
-			<input type='submit' name='submit' value='request_friend'>
-			<input type='hidden' name='person_id' value={{ personal_msg.id }}>
-		</form>
+		<div style='text-align:center'>
+			<form method='post'>
+				{% csrf_token %}
+				<input type='hidden' name='person_id' value={{personal_msg.id}}>
+				{% if other_can_friends == '0' %}
+                <button class="btn btn-success" name='submit' value='request_friend'>
+                	<span class="fa fa-plus-circle"></span> 加为好友	          		                      		
+                </button>
+                {% elif other_can_friends == '1' %}
+                <button class="btn btn-success" disabled='disabled'>
+                	请求已发送
+                </button>
+                {% else %}
+                <button class="btn btn-success" disabled='disabled'>
+                	已是好友
+                </button>
+                {% endif %}
+				
+		
+			</form>
 
-		<a href="{{ last_page }}">返回上一页</a>
+			<a style='margin-top:10px;'class='btn btn-info'href="{{ last_page }}">返回</a>
+		</div>
 
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>

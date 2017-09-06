@@ -18,6 +18,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^confirm/$', views.confirm),
     url(r'^act_info/check_act/$', views.check_act_msg),
     url(r'^activities/create_activity/$', views.create_act),
     url(r'^act_info/$', views.show_act),
@@ -27,7 +28,7 @@ urlpatterns = [
     url(r'^linker/$', views.search_people, name='linker_page_url'),
     url(r'^activities/$', views.search_act, name='activities_page_url'),
     url(r'explore/', views.explore_page_show, name='explore_page_url'),
-    url(r'share/', views.share_page_show, name='share_page_url'),
+    url(r'share/', views.share_page_show, name='shs_page_url'),
     url(r'login/', views.log_in, name='log_in_url'),
     url(r'register/', views.user_register, name='register_url'),
     url(r'^$', views.start_page_show, name='start_page_url'),

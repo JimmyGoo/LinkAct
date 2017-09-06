@@ -128,6 +128,18 @@ STATICFILES_DIRS = (
     #('upload',os.path.join(STATIC_ROOT,'upload').replace('\\','/') ), 
 )
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.163.com'
+
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'LinkActs@163.com'
+EMAIL_HOST_PASSWORD = 'linkact729'
+EMAIL_USE_TLS = False
+DEFAULT_FROM_EMAIL = 'LinkActs@163.com'
 
 #Just for ImageField
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')

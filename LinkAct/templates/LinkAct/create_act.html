@@ -57,7 +57,7 @@
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -79,10 +79,10 @@
 		        		<li class="dropdown">
 			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
 				            <ul class="dropdown-menu">
-					            <li><a href="#">管理活动</a></li>
+					           <!--  <li><a href="#">管理活动</a></li>
 					            <li><a href="#">查看好友</a></li>
 					            <li><a href="#">分享</a></li>
-					            <li role="separator" class="divider"></li>
+					            <li role="separator" class="divider"></li> -->
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">个人信息</a></li>
@@ -127,22 +127,26 @@
 				</div>
 				<div class="form-group">
 					<label for="start_date" class="col-md-4 control-label">启始日期:</label>
-					<div class="input-group date form_date col-md-4" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
-						<input class="form-control" style="margin-left: 12px; background-color:white;" id="start_date" name="start_date"size="16" type="text" 
-						required="" readonly>
-						<span class="input-group-addon" style="margin-left: 12px;"><span class="glyphicon glyphicon-remove"></span></span>
-						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+					<div class="col-md-4">
+						<div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+							<input class="form-control" style="background-color:white;" id="start_date" name="start_date"size="16" type="text" 
+							required="" readonly>
+							<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+							<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+						</div>
 					</div>
 					<input type="hidden" value="" /><br/>
 				</div>
 
 				<div class="form-group">
 					<label for="end_date" class="col-md-4 control-label">结束日期:</label>
-					<div class="input-group date form_date col-md-4" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
-						<input class="form-control" style="margin-left: 12px; background-color:white;" id="end_date" name="end_date"size="16" type="text" 
-						required="" readonly>
-						<span class="input-group-addon" style="margin-left: 12px;"><span class="glyphicon glyphicon-remove"></span></span>
-						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+					<div class="col-md-4">
+						<div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+							<input class="form-control" style="background-color:white;" id="end_date" name="end_date"size="16" type="text" 
+							required="" readonly>
+							<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+							<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+						</div>
 					</div>
 					<input type="hidden" value="" /><br/>
 				</div>
@@ -211,10 +215,14 @@
 			</fieldset>
 			</form>
 			<div class="form-group">
-				 <div class="col-md-8">
-					<button id="cancel_btn" name="cancel_btn" class="btn btn-danger"><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1" style="text_decoration:none; color:white;">取消</a></button>
-				</div>
+			  	<label class="col-md-4 control-label" for="cancel_btn"></label>
+			  	<div class="col-md-8">
+			    	<a id="cancel_btn" class="btn btn-danger"href="{{ url2 }}?search_class=create_time&search_content=&search_order=1&search_page=1" style="text_decoration:none; color:white;">取消</a>
+			   
+			  	</div>
 			</div>
+			
+			
 		</div>
 		<footer class="bs-docs-footer" role="contentinfo">
 			<div class='container' id='copy_right'>

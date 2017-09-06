@@ -58,7 +58,7 @@
 
 					  	{%url 'activities_page_url' as url2 %}
 					  	{% if url2 %}
-					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=create_time&search_order=1&search_page=1">活动</a></li>
+					  	<li role="presentation"><a href="{{ url2 }}?search_class=create_time&search_content=&search_order=1&search_page=1">活动</a></li>
 					  	{% endif %}
 
 					  	{%url 'explore_page_url' as url3 %}
@@ -80,10 +80,10 @@
 		        		<li class="dropdown">
 			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
 				            <ul class="dropdown-menu">
-					            <li><a href="#">管理活动</a></li>
+					        <!--     <li><a href="#">管理活动</a></li>
 					            <li><a href="#">查看好友</a></li>
 					            <li><a href="#">分享</a></li>
-					            <li role="separator" class="divider"></li>
+					            <li role="separator" class="divider"></li> -->
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">个人信息</a></li>
@@ -156,16 +156,11 @@
 						<div class="profile-usermenu">
 							<ul class="nav">
 
-								{% if info_change_status == False %}
+								{%if info_change_status == False and check_history_status == False%}
 								<li class="active">
 									<a href="{{url7}}">
 									<i class="glyphicon glyphicon-home"></i>
 									个人信息 </a>
-								</li>
-								<li>
-									<a href="{{url7}}?info_change=1">
-									<i class="glyphicon glyphicon-user"></i>
-									用户信息设置 </a>
 								</li>
 								{% else %}
 								<li>
@@ -173,17 +168,35 @@
 									<i class="glyphicon glyphicon-home"></i>
 									个人信息 </a>
 								</li>
-								<li class="active">
+								{% endif %}
+
+								{% if info_change_status == True%}
+								<li class='active'>
+									<a href="{{url7}}?info_change=1">
+									<i class="glyphicon glyphicon-user"></i>
+									用户信息设置 </a>
+								</li>
+								{% else %}
+								<li>
 									<a href="{{url7}}?info_change=1">
 									<i class="glyphicon glyphicon-user"></i>
 									用户信息设置 </a>
 								</li>
 								{% endif %}
-								<li>
-									<a href="#" target="_blank">
+								
+								{%if check_history_status == True%}
+								<li class="active">
+									<a href="{{url7}}?check_history=1">
 									<i class="glyphicon glyphicon-tasks"></i>
-									管理活动 </a>
+									历史活动信息 </a>
 								</li>
+								{%else%}
+								<li>
+									<a href="{{url7}}?check_history=1">
+									<i class="glyphicon glyphicon-tasks"></i>
+									历史活动信息 </a>
+								</li>
+								{%endif%}
 								<li>
 									<a href="{{url8}}">
 									<i class="glyphicon glyphicon-lock"></i>
@@ -197,7 +210,7 @@
 				<div class="col-md-9">
 
 		            <div class="profile-content">
-		            	{% if info_change_status == False %}
+		            	{% if info_change_status == False and check_history_status == False%}
 
 						<div class="panel panel-info">
 			            	<div class="panel-heading">
@@ -263,6 +276,17 @@
 								</div>
 							</div>
 						</div>
+
+						{% elif check_history_status == True%}
+						<legend>查看历史参与活动消息</legend>
+						{% for i in history_p_event%}
+						<p>{{i}}</p>
+						{% endfor %}
+						
+						<legend>查看历史发起活动消息</legend>
+						{% for i in history_c_event%}
+						<p>{{i}}</p>
+						{% endfor %}
 
 						{% else %}
 						<form class="form-horizontal" method='post'>

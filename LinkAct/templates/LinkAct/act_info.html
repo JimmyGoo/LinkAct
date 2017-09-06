@@ -79,10 +79,10 @@
 		        		<li class="dropdown">
 			          		<a href='#' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">操作<span class="caret"></span></a>
 				            <ul class="dropdown-menu">
-					            <li><a href="#">管理活动</a></li>
+					            <!-- <li><a href="#">管理活动</a></li>
 					            <li><a href="#">查看好友</a></li>
 					            <li><a href="#">分享</a></li>
-					            <li role="separator" class="divider"></li>
+					            <li role="separator" class="divider"></li> -->
 					            {% url 'user_info_url' as url7%}
 					            {% if url7 %}
 					            <li><a href="{{ url7 }}">个人信息</a></li>
@@ -166,7 +166,7 @@
 
 		                        
 								    <div class="col-lg-5">
-								        <div class="media">
+								        <div class="media" >
 								            <a class="pull-left" href="{{url0}}personal_info/?id={{ act_infomation.creator.user.id }}&back_page={{this_page}}">
 								      			{% if creator_has_own_avatar == True%}
 								                <img class="media-object dp img-circle" src={{creator_img.img.url}} style="width: 100px;height:100px;">
@@ -262,7 +262,7 @@
 						            </div>
 						        </div>
 		                        {% for one_participant in participants_data %}
-								 <div class="media"i d='join_user'>
+								 <div class="media" id='join_user'>
 						            <a class="pull-left" href="{{url0}}personal_info/?id={{ one_participant.user.user.id }}&back_page={{this_page}}">
 						      			{% if one_participant.participants_has_own_avatar == True%}
 						                <img class="media-object dp img-circle join_user_head" src={{one_participant.participants_img.img.url}} style="width: 100px;height:100px;">
@@ -366,9 +366,22 @@
 								</div>
 								{% endif %}
 		                    </li>
+
+		                    <li>
+		                    	<span class="fa fa-send li-title">分享活动</span>
+		                    	<div class="jiathis_style_24x24">
+									<a class="jiathis_button_qzone"></a >
+									<a class="jiathis_button_tsina"></a >
+									<a class="jiathis_button_tqq"></a >
+									<a class="jiathis_button_weixin"></a >
+									<a class="jiathis_button_renren"></a >
+								</div>
+		                    </li>
 		                </ul>
 		                
 		            </div>
+
+
 		            
 			
 		            <form method='post' style="text-align:center;">
@@ -376,14 +389,14 @@
 						{% if isParticipant == False %}
 						<button type="submit" id="join_btn" name='submit' value='参加' class="btn btn-success"><span class="glyphicon glyphicon-user"></span>参加活动</button>
 						{% endif %}
-						{% if isParticipant == True %}
+						{% if isParticipant == True and isCreator == False%}
 						<button type="submit" id="exit_btn" name='submit' value='退出' class="btn btn-danger">
 							 <span class="fa fa-arrow-right"></span>退出活动</button>
 						{% endif %}
 						<input type='hidden' name='act_id' value='{{ act_id }}'>
 					</form>
 					<div style = 'text-align:center'>
-						<a class = 'btn btn-primary'style='color:white; float:center;' href="{{ last_page }}">返回</a>
+						<a class = 'btn btn-primary'style='color:white; float:center; margin-top:10px' href="{{ last_page }}">返回</a>
 					</div>
 		        </div>
 			</div>
@@ -402,5 +415,13 @@
 	</body>
 	{% load staticfiles %}
 	<script src="{%static "js/comment.js" %}"></script>
-
+	<script type="text/javascript" src="http://v3.jiathis.com/code_mini/jia.js" charset="utf-8"></script>
+	<script>
+		var jiathis_config = {
+		summary:"我在LinkAct参加了活动" + {{ act_infomation.act.name }},
+		title:"我在LinkAct参加了活动" + {{ act_infomation.act.name }},
+		}
+	</script>
+		<!-- JiaThis Button BEGIN -->
+<!-- JiaThis Button END -->
 </html>

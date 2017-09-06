@@ -207,13 +207,46 @@ def explore_page_show(request):
 
 	if request.method == 'GET':
 		check_activity_status(Activity.objects.all())
-		answer = user.myuser.get_recommended_activities()
-		print('一个问题', answer)
-		result = answer[0:20]
-		result = check_activity_status(result)
+		act_answer = user.myuser.get_recommended_activities()
+		user_answer = user.myuser.get_recommended_user()
+		act_result = act_answer[0:20]
+		user_result = user_answer[0:5]
+		act_result = check_activity_status(act_result)
 
+		#整合用户#
+		user_data = []
+	
+		for show_user in user_result:
+			other_can_friends = '0'
+			if show_user[0].get_id() in user.myuser.get_friends():
+				other_can_friends = '2'
+			if user.myuser.get_id() in show_user[0].get_waiting():
+				other_can_friends = '1'
+			other_has_own_avatar = False
+			other_imgs = Img.objects.filter(id = show_user[0].get_head())
+			if len(other_imgs) != 0:
+				other_img = other_imgs[0]
+				other_has_own_avatar = True
+			else:
+				
+				other_img = ''
+
+			other_interests_num = show_user[0].get_interests()
+			print(other_interests_num)
+			other_interests = []
+			has_interest = True
+			if other_interests_num != []:
+				for num in other_interests_num:
+					print(num)
+					other_interests.append(Interest.objects.get(id = int(num)).get_content())
+			if other_interests == []:
+				has_interest = False
+			p_act_number = len(show_user[0].get_participate_terminative_acts())	+ len(show_user[0].get_participate_ongoing_acts())
+			c_act_number = len(show_user[0].get_create_ongoing_acts()) + len(show_user[0].get_create_terminative_acts())
+			user_data.append({'c_act_number':c_act_number, 'p_act_number':p_act_number, 'friends_number':len(show_user[0].get_friends()), 'same_acts_number':show_user[3], 'same_interests_number':show_user[2], 'same_friends':show_user[1], 'other_user':show_user[0], 'other_img':other_img, 'other_has_own_avartar':other_has_own_avatar,
+				'other_interests':other_interests, 'other_can_friends': other_can_friends, 'has_interest':has_interest})
 		pass_data = []
-		for i in result:
+		for i in act_result:
 			img = Img.objects.filter(id = i.act_image)
 			has_show_img = False
 			pass_image = ''
@@ -223,40 +256,29 @@ def explore_page_show(request):
 			pass_data.append({'act':i,'pass_img':pass_image, 'has_show_img':has_show_img})
 			
 
-		new_movements = request.user.myuser.get_friend_movement()
-		new_names = request.user.myuser.get_movement_name()
-		new_links = request.user.myuser.get_movement_link()
-		new_person_names = []
-
-		for index in range(0, len(new_movements)):
-			new_person_names.append(User.objects.get(int(new_movements[index])).myuser.nickname)
-
-		new_data = []
-		for i in range(0, len(new_movements)):
-			new_data.append((new_movements[i], new_names[i], new_links[i], new_person_names[i]))
-
-		
-
+	
 		if has_own_avatar:
-			return render(request, 'LinkAct/activities_page.html', 
+			return render(request, 'LinkAct/explore_page.html', 
 			{
 				'user_name':username,
 				'img':head_img,
 				'pass_data':pass_data, 
 			 	'no_param_path':request.path, 
-			 	'new_data':new_data,
+			 	'user_data':user_data,
 			 	'has_login':has_login,
 			 	'has_own_avatar':has_own_avatar,
+			 	'current_url':request.get_full_path(),
 		 	})
 		else:
-		 	return render(request, 'LinkAct/activities_page.html', 
+		 	return render(request, 'LinkAct/explore_page.html', 
 			{
 				'user_name':username,
 				'pass_data':pass_data, 
 			 	'no_param_path':request.path, 
-			 	'new_data':new_data,
+			 	'user_data':user_data,
 			 	'has_login':has_login,
 			 	'has_own_avatar':has_own_avatar,
+			 	'current_url':request.get_full_path(),
 		 	})
 	elif request.method == 'POST':
 		params = request.POST
@@ -264,11 +286,10 @@ def explore_page_show(request):
 			aim_url = request.path
 			aim_url = aim_url + "?search_class=" + params.get('search_class', '') + "&search_content=" + params.get('search_content', '') + "&search_order=0&search_page=1" 
 			return HttpResponseRedirect(aim_url)
-		elif request.POST.get('submit') == '全部忽略':
-			request.user.myuser.clear_friend_movement()
-			request.user.myuser.clear_movement_name()
-			request.user.myuser.clear_movement_link()
-			return HttpResponseRedirect('./')
+		elif request.POST.get('submit') == '加为好友':
+			index = request.POST.get('person_id')
+			User.objects.filter(id=index)[0].myuser.append_waiting(request.user.id)
+			return HttpResponseRedirect(request.get_full_path())
 
 	
 
@@ -353,16 +374,33 @@ def user_register(request):
 			#用户名已存在
 			print('username already exists')
 			return render(request, 'LinkAct/result_page.html', {'error_index':2})
+
+		print(type(password1))
+		url = "请进入下列链接完成邮箱验证：" + "http://"+request.get_host() + '/confirm/?username=' + usernames + '&nickname=' + nickname + '&password=' + str(password1) + '&email='+  str(email)
+		print(url)
+		send_mail("加入领客验证", url, 'LinkActs@163.com', [email], fail_silently=False)
 		#判定完毕
-		myUser = MyUser()
-		myUser.create_user(usernames, password1, email, nickname)
-		user = auth.authenticate(username=usernames, password=password1)
-		auth.login(request,user)
+		# myUser = MyUser()
+		# myUser.create_user(usernames, password1, email ,nickname)
+		# user = auth.authenticate(username=usernames, password=password1)
+		# auth.login(request,user)
 		return render(request, 'LinkAct/result_page.html', {'error_index':0})
  
 	return render(request, 'LinkAct/register_page.html', {'form':form})
 		
 
+def confirm(request):
+	if request.method == 'GET':
+		params = request.GET
+		username = params.get('username','')
+		nickname = params.get('nickname','')
+		password = params.get('password','')
+		email = params.get('email','')
+		myUser = MyUser()
+		myUser.create_user(username, password, email ,nickname)
+		user = auth.authenticate(username=username, password=password)
+		auth.login(request,user)
+		return render(request, 'LinkAct/confirm_page.html')
 
 #创建完成
 def create_act(request):
@@ -451,69 +489,9 @@ def create_act(request):
 				'theme_type':check_theme_msg,
 			})
 
-#修改活动信息，仅活动创建人能进入此页面，修改完成后用input按钮提交，用hidden的input标签传回id及last_page
-#def check_act_msg(request):
-#	print('妈蛋')
-#	has_login = False
-#	has_own_avatar = False
-#	if request.user.username == AnonymousUser.username:
-#		has_login = False
-#	else:
-#		has_login = True
-#		imgs = Img.objects.filter(id = user.myuser.get_head())
-#		if len(imgs) != 0:
-#			img = imgs[0]
-#			has_own_avatar = True
-#
-#
-#
-#	if request.method == 'GET':
-#		login_status = request.GET.get('user_login','-1')
-#		if login_status=='0':
-#			log_out(request)
-#			print('logout successfully')
-#		i = request.GET['id']
-#		last_page = request.GET['last_page']
-#		to_check_act = Activity.objects.get(id=i)
-#		
-#		form = ActForm()
-#		if has_own_avatar:
-#			return render(request, 'LinkAct/actShow.html', 
-#				{
-#					'form': form, 
-#					'act_obj':to_check_act, 
-#					'last_page':last_page, 
-#					'id':i,
-#					'has_own_avatar':has_own_avatar,
-#					'img': img,
-#					'has_login': has_login,
-#				})
-#		else:
-#			return render(request, 'LinkAct/actShow.html', 
-#				{
-#					'form': form, 
-#					'act_obj':to_check_act, 
-#					'last_page':last_page, 
-#					'id':i,
-#					'has_own_avatar':has_own_avatar,
-#					'has_login': has_login,
-#				})
-#	else:
-#		params = request.POST
-#		i = request.POST['id']
-#		last_page = request.POST['last_page']
-#		to_check_act = Activity.objects.get(id=i)
-#		to_check_act.set_locale(params.get('locale', ''))
-#		to_check_act.set_theme(params.get('theme', ''))
-#		to_check_act.update_start_date(params.get('start_date', ''))
-#		to_check_act.update_end_date(params.get('end_date', ''))
-#		to_check_act.set_introduction(params.get('introduction', ''))
-#
-#		return HttpResponseRedirect(last_page)
-
 #修改活动信息
 def check_act_msg(request):
-	print('妈蛋')
+
 	user = request.user
 	user_name = ''
 	has_login = False
@@ -535,7 +513,12 @@ def check_act_msg(request):
 			print('logout successfully')
 
 		index = request.GET['id']
-		back_page = request.GET['back_page'] + "&last_page=" + request.GET['last_page'] + "&search_content="+ str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
+		
+
+		if request.GET.get('search_order','') == '':
+			back_page = request.GET['back_page'] + "&last_page=" + request.GET['last_page']
+		else:
+			back_page = request.GET['back_page'] + "&last_page=" + request.GET['last_page'] + "&search_content="+ str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
 
 		act = Activity.objects.get(id=index)
 		act_infomation = {}
@@ -557,31 +540,77 @@ def check_act_msg(request):
 			temp_p_myuser.append(User.objects.get(id = x).myuser)
 		act_infomation['supporters'] = temp_p_myuser
 
-		actForm = ActForm()
+		act_id = act_infomation['act'].id
+
+		default_province = act.get_locale().split(' ')
+		default_city = default_province[1]
+		default_province = default_province[0]
+
+
+		print(act_infomation['act'].start_date)
+
 		if has_own_avatar:
 			return render(request, 'LinkAct/check_act_msg.html', 
 				{
-					'form':actForm, 
+					
 					'act_infomation':act_infomation, 
 					'back_page':back_page,
 					'has_own_avatar':has_own_avatar,
 					'img': img,
 					'has_login': has_login,
 					'user_name':user_name,
+					'act_id':act_id,
+					'default_province':default_province
 				})
 		else:
 			return render(request, 'LinkAct/check_act_msg.html', 
 				{
-					'form':actForm, 
+					
 					'act_infomation':act_infomation, 
 					'back_page':back_page,
 					'has_own_avatar':has_own_avatar,
 					'has_login': has_login,
 					'user_name':user_name,
+					'act_id':act_id,
+					'default_province':default_province
 				})
 	elif request.method == 'POST':
+		act_id = request.POST.get('act_id', '')
+		c_act = Activity.objects.get(id=act_id)
+
+		c_act.set_name(request.POST.get('name',''))
+
+		city_string = request.POST.get('province', '')
+		city_string += ' '
+		city_string += request.POST.get('city','')
+
+		c_act.set_locale(city_string)
+		c_act.set_introduction(request.POST.get('intro',''))
+		c_act.set_end_date(request.POST.get('end_date',''))
+
+		if request.FILES.get('act_img_upload') != '':
+			print("我在寒风中", request.FILES.get('act_img_upload'))
+			new_img = Img(img = request.FILES.get('act_img_upload'))
+			new_img.save()
+			c_act.set_act_image(new_img.get_id())
+		
+
+
+		mails_to = []	
+		participants = c_act.get_participants()
+		
+
+
+
+		for index in range(0, len(participants)):
+			mails_to.append(User.objects.get(id=participants[index]).email)
+
+		info_msg = "您参加的活动" + c_act.name + "的信息被修改，请及时查看。"
+
+		send_mail("活动信息修改通知", info_msg, 'LinkActs@163.com', mails_to, fail_silently=False)
+		print(mails_to)
 				#保存修改并发送邮件
-		back_page = request.POST.get('back_page', '')
+		back_page = request.POST.get('back_page')
 		return HttpResponseRedirect(back_page)
 #登录
 def log_in(request):
@@ -616,6 +645,7 @@ def log_out(request):
 def check_personal_msg(request):
 	
 	info_change_status = False
+	check_history_status = False
 	has_login = True
 	user_name = request.user.username
 	#-----------登录判定----------#
@@ -628,6 +658,10 @@ def check_personal_msg(request):
 		set_info = request.GET.get('info_change','-1')
 		if set_info=='1':
 			info_change_status = True
+
+		check_his = request.GET.get('check_history','-1')
+		if check_his=='1':
+			check_history_status = True
 
 
 	check_interest_msg = []
@@ -709,6 +743,29 @@ def check_personal_msg(request):
 			default_city = "未填写"
 			default_province = "未填写"
 
+		history_p_event_id = []
+		history_c_event_id = []
+		history_p_event = []
+		history_c_event = []
+		if check_history_status:
+			print('wocaonimawocaim')
+
+			history_p_event_id = request.user.myuser.get_participate_terminative_acts()
+			for i in request.user.myuser.get_participate_ongoing_acts():
+				history_p_event_id.append(i)
+			history_c_event_id = request.user.myuser.get_create_terminative_acts()
+			for i in request.user.myuser.get_create_ongoing_acts():
+				history_c_event_id.append(i)
+
+			for i in history_p_event_id:
+				history_p_event.append(Activity.objects.get(id=i).get_name())
+			for i in history_c_event_id:
+				history_c_event.append(Activity.objects.get(id=i).get_name())
+			print(history_p_event)
+			print(history_c_event)
+
+
+
 
 
 		if has_own_avatar:
@@ -722,9 +779,15 @@ def check_personal_msg(request):
 						'img': img, 
 						'has_own_avatar':has_own_avatar,
 						'info_change_status':info_change_status,
+
+						'check_history_status':check_history_status,
+						'history_c_event':history_c_event,
+						'history_p_event':history_p_event,
+
 						'default_province':default_province,
 						'default_city':default_city,
 						'user_name':user_name,
+
 					})
 		else:
 			print(request.user.myuser.nickname)
@@ -740,6 +803,9 @@ def check_personal_msg(request):
 						'default_city':default_city,
 						'user_name':user_name,
 
+						'check_history_status':check_history_status,
+						'history_c_event':history_c_event,
+						'history_p_event':history_p_event,
 					})
 
 def set_password_func(request):
@@ -835,9 +901,13 @@ def show_people(request):
 		index = int(request.GET['id'])
 		current_page = ''
 		if request.GET.get('back_page', '') != '':
-			current_page = request.GET['back_page'] + "&last_page=" +request.GET['last_page'] + "&search_content=" + str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
+			current_page = request.GET['back_page'] +"&last_page=" +request.GET['last_page'] + "&search_content=" + str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
 		else:
-			current_page = request.GET['last_page'] + "&search_content=" + str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
+			if request.GET.get('search_order', '') == '':
+				current_page = request.GET['last_page']
+			else:
+				current_page = request.GET['last_page'] + "&search_content=" + str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
+		
 	
 		personal_msg = User.objects.filter(id=index)[0]
 
@@ -856,9 +926,16 @@ def show_people(request):
 
 		if has_login:
 			imgs = Img.objects.filter(id = request.user.myuser.get_head())
-			print(imgs)
 			form = PersonalInfoForm()
-			print('fuck', personal_msg.myuser.phone_number)
+			
+
+
+			other_can_friends = '0'
+			if personal_msg.myuser.get_id() in request.user.myuser.get_friends():
+				other_can_friends = '2'
+			if request.user.myuser.get_id() in personal_msg.myuser.get_waiting():
+				other_can_friends = '1'
+
 
 			if len(imgs) != 0:
 				img = imgs[0]
@@ -876,7 +953,9 @@ def show_people(request):
 							'interest_msg': interest_msg, 
 							'personal_msg':personal_msg, 
 							'last_page':current_page,
-							'my_url':my_url
+							'my_url':my_url,
+							'other_can_friends':other_can_friends,
+							'user_name':request.user.username,
 						})
 				else:
 					other_flag = False
@@ -890,7 +969,9 @@ def show_people(request):
 							'interest_msg': interest_msg, 
 							'personal_msg':personal_msg, 
 							'last_page':current_page,
-							'my_url':my_url
+							'my_url':my_url,
+							'other_can_friends':other_can_friends,
+							'user_name':request.user.username,
 						})
 			else:
 				if personal_msg.myuser.get_head() != -1:
@@ -906,7 +987,9 @@ def show_people(request):
 							'interest_msg': interest_msg, 
 							'personal_msg':personal_msg, 
 							'last_page':current_page,
-							'my_url':my_url
+							'my_url':my_url,
+							'other_can_friends':other_can_friends,
+							'user_name':request.user.username,
 						})
 				else:
 					other_flag = False
@@ -919,7 +1002,9 @@ def show_people(request):
 							'interest_msg': interest_msg, 
 							'personal_msg':personal_msg, 
 							'last_page':current_page,
-							'my_url':my_url
+							'my_url':my_url,
+							'other_can_friends':other_can_friends,
+							'user_name':request.user.username,
 						})
 		else:
 			return render(request, 'LinkAct/personal_info.html', 
@@ -929,7 +1014,8 @@ def show_people(request):
 						'interest_msg': interest_msg, 
 						'personal_msg':personal_msg, 
 						'last_page':current_page, 
-						'my_url':my_url
+						'my_url':my_url,
+						
 					})
 
 	else:
@@ -1037,8 +1123,21 @@ def search_people(request):
 						other_interests.append(Interest.objects.get(id = int(num)).get_content())
 				if other_interests == []:
 					has_interest = False
-				pass_data.append({'other_user':show_user, 'other_img':other_img, 'other_has_own_avartar':other_has_own_avatar,
-					'other_interests':other_interests, 'other_can_friends': other_can_friends, 'has_interest':has_interest})
+
+				p_act_number = len(show_user.get_participate_terminative_acts())+ len(show_user.get_participate_ongoing_acts())
+				c_act_number = len(show_user.get_create_ongoing_acts()) + len(show_user.get_create_terminative_acts())
+
+				pass_data.append({
+					'other_user':show_user, 
+					'other_img':other_img, 
+					'other_has_own_avartar':other_has_own_avatar,
+					'other_interests':other_interests, 
+					'other_can_friends': other_can_friends, 
+					'has_interest':has_interest,
+					'p_act_number':p_act_number,
+					'c_act_number':c_act_number,
+					'friends_num':len(show_user.get_friends()),
+					})
 
 			search_class_pass_text = '无条件筛选'
 			search_class_pass_value = 'all'
@@ -1081,6 +1180,8 @@ def search_people(request):
 							'search_class_pass_value':search_class_pass_value,
 							'search_class_pass_text':search_class_pass_text,
 							'search_content_pass_text':search_content,
+							'is_last_page':is_last_page,
+							'is_first_page':is_first_page,
 						})
 			else:
 				return render(request, 'LinkAct/linker_page.html', 
@@ -1098,6 +1199,8 @@ def search_people(request):
 							'search_class_pass_value':search_class_pass_value,
 							'search_class_pass_text':search_class_pass_text,
 							'search_content_pass_text':search_content,
+							'is_last_page':is_last_page,
+							'is_first_page':is_first_page,
 						})   
 
 		elif request.method == 'POST':
@@ -1107,7 +1210,7 @@ def search_people(request):
 
 				aim_url = request.path
 
-				if params.get('search_content', '') == '':
+				if params.get('search_order', '') == '':
 					aim_url = aim_url + "?search_class=" + params.get('search_class', '') + "&search_content=" + params.get('search_content', '') + "&search_order=1&search_page=1" 
 				else:
 					aim_url = aim_url + "?search_class=" + params.get('search_class', '') + "&search_content=" + params.get('search_content', '') + "&search_order=0&search_page=1" 
@@ -1118,7 +1221,7 @@ def search_people(request):
 				User.objects.filter(id=index)[0].myuser.append_waiting(request.user.id)
 				return HttpResponseRedirect(request.get_full_path())
 
-			else:
+			elif request.POST.get('submit') == "同意" or request.POST.get('submit') == "拒绝":
 				agreed_id = int(request.POST.get('request_id'))
 				if request.POST.get('submit') == '同意':				
 					request.user.myuser.append_friends(agreed_id)
@@ -1215,31 +1318,37 @@ def search_act(request):
 
 			pass_data.append({'act':i,'pass_img':pass_image, 'has_show_img':has_show_img, 'pass_intro':pass_intro})
 			
-
+		new_movement_ids = request.user.myuser.get_friend_movement_id()
 		new_movements = request.user.myuser.get_friend_movement()
 		new_names = request.user.myuser.get_movement_name()
 		new_links = request.user.myuser.get_movement_link()
 		new_person_names = []
 
+		has_moment = True
+		if len(new_movements) == 0:
+			has_moment = False
+
 		for index in range(0, len(new_movements)):
-			new_person_names.append(User.objects.get(int(new_movements[index])).myuser.nickname)
+			# new_person_names.append(User.objects.get(int(new_movements[index])).myuser.nickname)
+			new_person_names.append(User.objects.get(id=new_movement_ids[index]).myuser.nickname)
 
 		new_data = []
 		for i in range(0, len(new_movements)):
 			new_data.append((new_movements[i], new_names[i], new_links[i], new_person_names[i]))
-		#request.user.myuser.clear_friend_movement()
-		#request.user.myuser.clear_movement_name()
-		#request.user.myuser.clear_movement_link()
-		print('哈哈哈', new_data, type(new_data))
-		for (x,y,z) in new_data:
-			print(x,y,z)
+		
+		
 		next_page = int(search_page) + 1
+		front_page = next_page - 2
 
 		temp_url = request.get_full_path()
 		next_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(next_page)
 		
-		search_class_pass_text = '无条件筛选'
-		search_class_pass_value = 'all'
+		front_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + str(front_page)
+		first_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=1"
+
+
+		search_class_pass_text = '按照主题搜索'
+		search_class_pass_value = 'theme'
 		for i in search_value_string:
 			if i['value'] == search_class:
 				search_class_pass_text = i['string']
@@ -1257,6 +1366,11 @@ def search_act(request):
 				'current_page':int(search_page), 
 				'current_url':request.get_full_path(), 
 				'next_page_url':next_page_url,
+				'front_page_url':front_page_url,
+				'first_page_url':first_page_url,
+				'is_first_page':is_first_page,
+				'is_last_page':is_last_page,
+
 			 	'no_param_path':request.path, 
 			 	'new_data':new_data,
 			 	'has_login':has_login,
@@ -1264,6 +1378,8 @@ def search_act(request):
 			 	'search_class_pass_text':search_class_pass_text,
 			 	'search_class_pass_value':search_class_pass_value,
 				'search_content_pass_text':search_content,
+
+				'has_moment':has_moment,
 		 	})
 		else:
 		 	return render(request, 'LinkAct/activities_page.html', 
@@ -1273,6 +1389,12 @@ def search_act(request):
 				'current_page':int(search_page), 
 				'current_url':request.get_full_path(), 
 				'next_page_url':next_page_url,
+
+				'front_page_url':front_page_url,
+				'first_page_url':first_page_url,
+				'is_first_page':is_first_page,
+				'is_last_page':is_last_page,
+
 			 	'no_param_path':request.path, 
 			 	'new_data':new_data,
 			 	'has_login':has_login,
@@ -1280,6 +1402,7 @@ def search_act(request):
 			 	'search_class_pass_text':search_class_pass_text,
 			 	'search_class_pass_value':search_class_pass_value,
 				'search_content_pass_text':search_content,
+				'has_moment':has_moment,
 		 	})
 	elif request.method == 'POST':
 		params = request.POST
@@ -1291,8 +1414,8 @@ def search_act(request):
 			request.user.myuser.clear_friend_movement()
 			request.user.myuser.clear_movement_name()
 			request.user.myuser.clear_movement_link()
-			return HttpResponseRedirect('./')
-
+			request.user.myuser.clear_friend_movement_id()
+			return HttpResponseRedirect(request.get_full_path())
 
 #展示具体活动的界面，返回按钮的链接应为<a href={{ last_page }}>， 若是创建者，则应存在链接“修改活动信息”，应为<a href=this_page_no_para + 'change/?id=' + act_obj.id + '&last_page=' + this_page>
 def show_act(request):
@@ -1330,13 +1453,17 @@ def show_act(request):
 			current_page = request.GET['last_page']
 		else:
 			current_page = request.GET['last_page'] + "&search_content=" + str(request.GET['search_content']) + "&search_order=" + str(request.GET['search_order']) + "&search_page=" + str(request.GET['search_page'])
-		
+		print(current_page)
 
 
 		act_obj = Activity.objects.filter(id=index)[0]
 
 		this_page = request.get_full_path()
 		this_page_no_para = request.path
+
+		check_activity_status([act_obj])
+
+		actForm = ActForm()
 
 		#是否活动发起人，决定了是否能修改活动信息
 		isCreator = False
@@ -1419,7 +1546,7 @@ def show_act(request):
 			participants_data.append({
 				'user':i,
 				'participants_img':participants_img,
-				'participants_has_own_avatar':Lparticipants_has_own_avatar
+				'participants_has_own_avatar':participants_has_own_avatar
 				})
 
 		return render(request, 'LinkAct/act_info.html', 
@@ -1448,7 +1575,7 @@ def show_act(request):
 				'isParticipant':isParticipant,
 				'act_id':index,
 				'comment_info':comment_info,
-				# 'form':newCommentForm
+
 				})
 	elif request.method == 'POST':
 		if request.POST.get('submit') == '参加':
@@ -1461,20 +1588,22 @@ def show_act(request):
 				other_id = request.user.myuser.get_friends()[i]
 				friend = User.objects.filter(id=other_id)[0].myuser
 				movement_msg = str(request.user.myuser.get_nickname()) + '参加了活动'
+				friend.append_friend_movement_id(request.user.id)
 				friend.append_friend_movement(movement_msg)
 				friend.append_movement_name(str(obj.name))
 				friend.append_movement_link(str(request.get_full_path()))
 								
 		elif request.POST.get('submit') == '退出':
 			index = request.POST.get('act_id', '')
-			obj = Activity.objects.filter(id=index)
+			obj = Activity.objects.get(id=index)
 			obj.remove_participants(request.user.id)
 			request.user.myuser.remove_participate_ongoing_acts(index)
 
-			for i in range(0, len(request.user.myuser.friends())):
+			for i in range(0, len(request.user.myuser.get_friends())):
 				other_id = request.user.myuser.get_friends()[i]
 				friend = User.objects.filter(id=other_id)[0].myuser
 				movement_msg = str(request.user.myuser.get_nickname()) + '退出了活动'
+				friend.append_friend_movement_id(request.user.id)
 				friend.append_friend_movement(movement_msg)
 				friend.append_movement_name(str(obj.name))
 				friend.append_movement_link(str(request.get_full_path()))
@@ -1482,16 +1611,9 @@ def show_act(request):
 			index = request.POST.get('act_id', '')
 			score = request.POST.get('score', '')
 			content = request.POST.get('user_comment', '')
-
-
 			request.user.myuser.create_comment(int(index), int(score), content)
 		fresh_path = request.get_full_path()
 		return HttpResponseRedirect(fresh_path)
-
-
-
-def send_emails(email_from, email_to, title, content):
-	send_mail('wf', 'wf', "Louyk14@163.com", "Louyk14@163.com", fail_silently=False)
 
 def check_activity_status(acts):
 	for index in range(0, len(acts)):
@@ -1501,4 +1623,16 @@ def check_activity_status(acts):
 			acts[index].set_status('ongoing')
 		elif timezone.now() > acts[index].get_end_date():
 			acts[index].set_status('finished')
+			participants = acts[index].get_participants()
+			for i in range(0, len(participants)):
+				mine = User.objects.get(id=participants[i]).myuser
+				mine.remove_participate_ongoing_acts(acts[index].id)
+				mine.append_participate_terminative_acts(acts[index].id)
+
+			create = acts[index].get_creator()
+			creator = User.objects.get(id=create).myuser
+			creator.remove_create_ongoing_acts(acts[index].id)
+			creator.append_create_terminative_acts(acts[index].id)
 	return acts
+
+
